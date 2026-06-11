@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Home from './components/Home';
+import Game from './components/Game';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -47,8 +48,8 @@ function App() {
         <Route path="/login" element={<Login setUser={setUser} />} />
         
         <Route path="/game" element={
-          user ? <div>Game Screen for {user.username}</div> : <div>You must be logged in to play!</div>
-        } />
+  user ? <Game user={user} /> : <div>You must be logged in to play!</div>
+} />
         
         <Route path="/rankings" element={<div>Global Rankings</div>} />
         <Route path="*" element={<div>404 - Page not found</div>} />
