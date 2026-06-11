@@ -57,8 +57,42 @@ app.get('/api/stations', (req, res) => {
     });
 });
 
-// GET /api/lines, GET /api/segments, GET /api/events can stay here unchanged...
 
+// GET /api/lines - retrieves all lines
+app.get('/api/lines', (req, res) => {
+    const sql = 'SELECT * FROM lines';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error during lines retrieval" });
+        }
+        res.json(rows);
+    });
+});
+
+// GET /api/segments - retrieves all connections between stations
+app.get('/api/segments', (req, res) => {
+    const sql = 'SELECT * FROM segments';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error during segments retrieval" });
+        }
+        res.json(rows);
+    });
+});
+
+// GET /api/events - retrieves all possible random events
+app.get('/api/events', (req, res) => {
+    const sql = 'SELECT * FROM events';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error during events retrieval" });
+        }
+        res.json(rows);
+    });
+});
 
 // ==========================================
 // AUTHENTICATION API ROUTES
