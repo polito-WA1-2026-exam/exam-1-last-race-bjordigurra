@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
+import Home from './components/Home';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -41,7 +42,7 @@ function App() {
       <Navbar user={user} setUser={setUser} />
       
       <Routes>
-        <Route path="/" element={<div>Welcome to Last Race (Map Setup)</div>} />
+        <Route path="/" element={<Home />} />
         
         <Route path="/login" element={<Login setUser={setUser} />} />
         
