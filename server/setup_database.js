@@ -91,36 +91,47 @@ db.serialize(() => {
     insertGame.run(2, 0);  // bjordi_02 scored 0
     insertGame.finalize();
 
-    // Insert lines (at least 4)
+    // Insert lines (4 lines)
     const insertLine = db.prepare(`INSERT INTO lines (name) VALUES (?)`);
-    const lines = ['Red Line', 'Blue Line', 'Green Line', 'Yellow Line'];
+    const lines = ['Green Line', 'Red Line', 'Orange Line', 'Blue Line'];
     lines.forEach(l => insertLine.run(l));
     insertLine.finalize();
 
-    // Insert stations (12)
+
+    // Insert stations (25 stations, minimum is 12)
     const insertStation = db.prepare(`INSERT INTO stations (name) VALUES (?)`);
     const stations = [
-        'Alpha', 'Beta', 'Gamma', 'Delta',      
-        'Epsilon', 'Zeta', 'Eta', 'Theta',       
-        'Iota', 'Kappa', 'Lambda', 'Mu'          
+        'Valmy', 'Gorge de Loup', 'Cathédrale St. Jean',      
+        'Bellecour', 'Guillotière', 'Saxe Gambetta', 'Garibaldi',       
+        'Perrache', 'Ampère Victor Hugo', 'Cordeliers', 'Hotel Pradel',
+        'Croix Paquet', 'Croix Rousse', 'Hénon', 'Cuire', 'Place Jean Jaurés', 'Jean Macé',
+        'Place Guichard', 'Vivier Merle', 'Brotteaux', 'Charpennes Hernu', 'Foch',
+        'Masséna', 'Villeurbanne', 'Gratte Ciel'      
     ];
     stations.forEach(s => insertStation.run(s));
     insertStation.finalize();
 
-    // Insert segments (creating 4 interchange stations: Delta(4), Eta(7), Kappa(10), Alpha(1))
+    // Insert segments 
+    // Creating 4 interchange stations: Bellecour (4), Hotel Pradel (11), Saxe Gambetta (6), Charrpennes Hernu (21)
     const insertSegment = db.prepare(`INSERT INTO segments (station_a, station_b, line_id) VALUES (?, ?, ?)`);
     
-    // Red Line (Line 1): Alpha(1) <-> Beta(2) <-> Gamma(3) <-> Delta(4)
-    insertSegment.run(1, 2, 1); insertSegment.run(2, 3, 1); insertSegment.run(3, 4, 1);
     
-    // Blue Line (Line 2): Delta(4) <-> Epsilon(5) <-> Zeta(6) <-> Eta(7)
-    insertSegment.run(4, 5, 2); insertSegment.run(5, 6, 2); insertSegment.run(6, 7, 2);
+    // Green Line (Line 1): 
+    insertSegment.run(1, 2, 1); insertSegment.run(2, 3, 1); insertSegment.run(3, 4, 1); insertSegment.run(4, 5, 1);
+    insertSegment.run(5, 6, 1); insertSegment.run(6, 7, 1);
+
+    // Red Line (Line 2):
+    insertSegment.run(8, 9, 2); insertSegment.run(9, 4, 2); insertSegment.run(4, 10, 2); insertSegment.run(10, 11, 2); 
+    insertSegment.run(11, 22, 2); insertSegment.run(22, 23, 2); insertSegment.run(23, 21, 2); insertSegment.run(21, 24, 2); 
+    insertSegment.run(24, 25, 2);
+
+    // Orange Line (Line 3): 
+    insertSegment.run(11, 12, 3); insertSegment.run(12, 13, 3); insertSegment.run(13, 14, 3); insertSegment.run(14, 15, 3);
+
+    // Blue Line (Line 4)
+    insertSegment.run(16, 17, 4); insertSegment.run(17, 6, 4); insertSegment.run(6, 18, 4); insertSegment.run(18, 19, 4); 
+    insertSegment.run(19, 20, 4); insertSegment.run(20, 21, 4);
     
-    // Green Line (Line 3): Eta(7) <-> Theta(8) <-> Iota(9) <-> Kappa(10)
-    insertSegment.run(7, 8, 3); insertSegment.run(8, 9, 3); insertSegment.run(9, 10, 3);
-    
-    // Yellow Line (Line 4): Kappa(10) <-> Lambda(11) <-> Mu(12) <-> Alpha(1)
-    insertSegment.run(10, 11, 4); insertSegment.run(11, 12, 4); insertSegment.run(12, 1, 4);
     insertSegment.finalize();
 
     // Insert events (at least 8, with effect between -4 and +4)
