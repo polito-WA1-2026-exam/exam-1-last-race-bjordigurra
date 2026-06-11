@@ -26,7 +26,7 @@ const users = [
 ];
 
 db.serialize(() => {
-    // 1. Drop existing tables to ensure a clean slate if script is re-run
+    // 1. Drop existing tables to ensure that the script can be re-run
     db.run(`DROP TABLE IF EXISTS games`);
     db.run(`DROP TABLE IF EXISTS events`);
     db.run(`DROP TABLE IF EXISTS segments`);
@@ -77,37 +77,37 @@ db.serialize(() => {
         effect INTEGER NOT NULL
     )`);
 
-    // 3. Insert initial data (Seeding)
+    // 3. Insert initial data (seeding)
 
-    // Insert Users (3 users)
+    // Insert users (3)
     const insertUser = db.prepare(`INSERT INTO users (username, hash, salt) VALUES (?, ?, ?)`);
     users.forEach(u => insertUser.run(u.username, u.hash, u.salt));
     insertUser.finalize();
 
-    // Insert Games (At least 2 users must have successfully played)
+    // Insert games (at least 2 users must have successfully played)
     const insertGame = db.prepare(`INSERT INTO games (user_id, score) VALUES (?, ?)`);
     insertGame.run(1, 15); // anna06 scored 15
     insertGame.run(1, 24); // anna06 scored 24
     insertGame.run(2, 0);  // bjordi_02 scored 0
     insertGame.finalize();
 
-    // Insert Lines (At least 4 lines)
+    // Insert lines (at least 4)
     const insertLine = db.prepare(`INSERT INTO lines (name) VALUES (?)`);
     const lines = ['Red Line', 'Blue Line', 'Green Line', 'Yellow Line'];
     lines.forEach(l => insertLine.run(l));
     insertLine.finalize();
 
-    // Insert Stations (Exactly 12 stations)
+    // Insert stations (12)
     const insertStation = db.prepare(`INSERT INTO stations (name) VALUES (?)`);
     const stations = [
-        'Alpha', 'Beta', 'Gamma', 'Delta',       // IDs: 1 to 4
-        'Epsilon', 'Zeta', 'Eta', 'Theta',       // IDs: 5 to 8
-        'Iota', 'Kappa', 'Lambda', 'Mu'          // IDs: 9 to 12
+        'Alpha', 'Beta', 'Gamma', 'Delta',      
+        'Epsilon', 'Zeta', 'Eta', 'Theta',       
+        'Iota', 'Kappa', 'Lambda', 'Mu'          
     ];
     stations.forEach(s => insertStation.run(s));
     insertStation.finalize();
 
-    // Insert Segments (Creating 4 interchange stations: Delta(4), Eta(7), Kappa(10), Alpha(1))
+    // Insert segments (creating 4 interchange stations: Delta(4), Eta(7), Kappa(10), Alpha(1))
     const insertSegment = db.prepare(`INSERT INTO segments (station_a, station_b, line_id) VALUES (?, ?, ?)`);
     
     // Red Line (Line 1): Alpha(1) <-> Beta(2) <-> Gamma(3) <-> Delta(4)
@@ -123,7 +123,7 @@ db.serialize(() => {
     insertSegment.run(10, 11, 4); insertSegment.run(11, 12, 4); insertSegment.run(12, 1, 4);
     insertSegment.finalize();
 
-    // Insert Events (At least 8 events, effect between -4 and +4)
+    // Insert events (at least 8, with effect between -4 and +4)
     const insertEvent = db.prepare(`INSERT INTO events (description, effect) VALUES (?, ?)`);
     const events = [
         { desc: 'Found a coin on the seat', effect: 1 },

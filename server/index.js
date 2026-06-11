@@ -1,9 +1,143 @@
+// server/index.js
+
 // imports
 import express from "express";
+import cors from "cors";
+import pkg from "sqlite3";
+import session from "express-session";
+import passport from "passport";
+import { initPassport, isLoggedIn } from "./auth.js";
+
+const { Database } = pkg;
 
 // init express
-const app = new express();
+const app = express();
 const port = 3001;
+
+// database connection
+const db = new Database('database.sqlite', (err) => {
+    if (err) throw err;
+    console.log("Connected to the SQLite database.");
+});
+
+// Initialize passport strategy
+initPassport(db);
+
+// middleware
+const corsOptions = {
+    origin: 'http://localhost:5173',
+    credentials: true, // Crucial for sessions/cookies to work cross-origin
+};
+app.use(cors(corsOptions));
+app.use(express.json());
+
+// Configure express-session before passport
+app.use(session({
+    secret: "a secret string to sign the session cookie, make it secure",
+    resave: false,
+    saveUninitialized: false
+}));
+
+// Initialize passport session support
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+// api routes
+
+// GET /api/stations - this retrieves all the stations
+app.get('/api/stations', (req, res) => {
+    const sql = 'SELECT * FROM stations';
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error during station retrieval" });
+        }
+        res.json(rows);
+    });
+});
+
+// GET /api/lines, GET /api/segments, GET /api/events can stay here unchanged...
+
+
+// ==========================================
+// AUTHENTICATION API ROUTES
+// ==========================================
+
+// POST /api/sessions - LOGIN
+app.post('/api/sessions', passport.authenticate('local'), (req, res) => {
+    // If this function gets called, authentication was successful.
+    // req.user contains the authenticated user.
+    const safeUser = {
+        id: req.user.id,
+        username: req.user.username
+    };
+    res.status(201).json(safeUser);
+});
+
+// DELETE /api/sessions/current - LOGOUT
+app.delete('/api/sessions/current', (req, res) => {
+    req.logout((err) => {
+        if (err) return res.status(500).json({ error: "Error during logout" });
+        res.end();
+    });
+});
+
+// GET /api/sessions/current - CHECK CURRENT SESSION
+// Used by React to check if the user is already logged in when reloading the page
+app.get('/api/sessions/current', (req, res) => {
+    if (req.isAuthenticated()) {
+        const safeUser = {
+            id: req.user.id,
+            username: req.user.username
+        };
+        res.json(safeUser);
+    } else {
+        res.status(401).json({ error: "Not authenticated" });
+    }
+});
+
+// GET /api/rankings - GET RANKING (BY BEST SCORE)
+app.get('/api/rankings', (req, res) => {
+    // SQL query to join users and games, taking the MAX score for each user
+    const sql = `
+        SELECT users.username, MAX(games.score) as best_score
+        FROM games
+        JOIN users ON games.user_id = users.id
+        GROUP BY users.id
+        ORDER BY best_score DESC
+    `;
+    
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error retrieving rankings" });
+        }
+        res.json(rows);
+    });
+});
+
+// POST /api/games - This saves the result of a game for the logged-in user
+app.post('/api/games', isLoggedIn, (req, res) => {
+    let finalScore = req.body.score;
+    
+    // If the score is negative, it is set to 0
+    if (finalScore < 0) {
+        finalScore = 0;
+    }
+
+    const sql = 'INSERT INTO games (user_id, score) VALUES (?, ?)';
+    
+    db.run(sql, [req.user.id, finalScore], function(err) {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: "Error saving the game" });
+        }
+        // Return the saved score and the ID of the new row in the database
+        res.status(201).json({ id: this.lastID, score: finalScore });
+    });
+});
+
 
 // activate the server
 app.listen(port, () => {
