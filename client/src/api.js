@@ -29,3 +29,9 @@ export async function getEvents() {
   if (!response.ok) throw new Error('Failed to fetch events');
   return await response.json();
 }
+
+export async function getMission() {
+  const response = await fetch(`${BASE_URL}/mission`, { credentials: 'include' });
+  if (!response.ok) throw new Error('Failed to fetch mission');
+  return await response.json();
+}
