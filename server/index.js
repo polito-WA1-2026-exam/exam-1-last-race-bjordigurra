@@ -94,6 +94,72 @@ app.get('/api/events', (req, res) => {
     });
 });
 
+// GET /api/mission - Randomly assigns a valid start and destination (distance >= 3)
+app.get('/api/mission', isLoggedIn, (req, res) => {
+    // 1. Fetch all stations and segments
+    db.all('SELECT * FROM stations', [], (err, stations) => {
+        if (err) return res.status(500).json({ error: "Error fetching stations" });
+        
+        db.all('SELECT * FROM segments', [], (err, segments) => {
+            if (err) return res.status(500).json({ error: "Error fetching segments" });
+
+            // 2. Build the graph (Adjacency List)
+            const graph = {};
+            stations.forEach(s => graph[s.id] = []);
+            
+            segments.forEach(seg => {
+                // Assuming connections are bidirectional
+                graph[seg.station_a].push(seg.station_b);
+                graph[seg.station_b].push(seg.station_a);
+            });
+
+            // 3. Helper function: Breadth-First Search to find distances from a start node
+            const getDistances = (startId) => {
+                const distances = {};
+                stations.forEach(s => distances[s.id] = Infinity);
+                distances[startId] = 0;
+                
+                const queue = [startId];
+
+                while (queue.length > 0) {
+                    const current = queue.shift();
+                    graph[current].forEach(neighbor => {
+                        if (distances[neighbor] === Infinity) {
+                            distances[neighbor] = distances[current] + 1;
+                            queue.push(neighbor);
+                        }
+                    });
+                }
+                return distances;
+            };
+
+            // 4. Find all valid pairs (distance >= 3)
+            const validPairs = [];
+            stations.forEach(startStation => {
+                const distances = getDistances(startStation.id);
+                
+                stations.forEach(destStation => {
+                    if (distances[destStation.id] >= 3 && distances[destStation.id] !== Infinity) {
+                        validPairs.push({
+                            start: startStation,
+                            destination: destStation,
+                            minimumDistance: distances[destStation.id]
+                        });
+                    }
+                });
+            });
+
+            if (validPairs.length === 0) {
+                return res.status(500).json({ error: "Network geometry invalid: no stations are 3 segments apart." });
+            }
+
+            // 5. Pick a random pair
+            const randomIndex = Math.floor(Math.random() * validPairs.length);
+            res.json(validPairs[randomIndex]);
+        });
+    });
+});
+
 // ==========================================
 // AUTHENTICATION API ROUTES
 // ==========================================
