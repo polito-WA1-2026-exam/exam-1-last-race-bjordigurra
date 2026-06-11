@@ -1,12 +1,13 @@
 // client/src/components/Game.jsx
 import { useState, useEffect } from 'react';
-import { getStations, getLines, getSegments, getMission } from '../api';
+import { getStations, getLines, getSegments, getMission, getEvents } from '../api';
 
 function Game({ user }) {
   // Map Data
   const [stations, setStations] = useState([]);
   const [lines, setLines] = useState([]);
   const [segments, setSegments] = useState([]);
+  const [events, setEvents] = useState([]);
   
   // Game State
   const [phase, setPhase] = useState('setup'); // 'setup', 'planning', 'execution', 'result'
@@ -15,13 +16,20 @@ function Game({ user }) {
   const [timeLeft, setTimeLeft] = useState(90);
   const [loading, setLoading] = useState(true);
 
+  // Execution State
+  const [isValidRoute, setIsValidRoute] = useState(false);
+  const [executionLog, setExecutionLog] = useState([]);
+  const [finalScore, setFinalScore] = useState(0);
+
   // Load initial map data
   useEffect(() => {
     async function loadData() {
       try {
-        const [s, l, seg] = await Promise.all([getStations(), getLines(), getSegments()]);
+        const [s, l, seg, ev] = await Promise.all([getStations(), getLines(), getSegments(), getEvents()]);
         setStations(s);
         setLines(l);
+        setEvents(ev);
+
         const shuffledSegments = [...seg].sort(() => Math.random() - 0.5); // segment shuffling before displaying
         setSegments(shuffledSegments);
       } catch (err) {
@@ -71,14 +79,82 @@ function Game({ user }) {
     }
   };
 
+  // Remove segment from the route
+  const removeSegmentFromRoute = (segmentId) => {
+    setRoute(route.filter(seg => seg.id !== segmentId));
+  };
+
+  // Remove all segments from the route
+  const clearRoute = () => setRoute([]);
+
   // Helpers to get names
   const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
   const getLineName = (id) => lines.find(l => l.id === id)?.name || 'Unknown';
 
+
+  // Validation logic that will be implemented in the Execution phase
   const submitRoute = () => {
-    // This moves us to Phase 3 (Execution) where we will validate the route
+    let currentStationId = mission.start.id;
+    let isValid = true;
+    let coins = 20; // Starting coins
+    let log = [];
+
+    // 1. A route must have at least one segment
+    if (route.length === 0) {
+      isValid = false;
+    }
+
+    // 2. Traverse the route step by step
+    for (let i = 0; i < route.length; i++) {
+      const seg = route[i];
+      let nextStationId = null;
+
+      // Check if the segment connects to our current station (handling both directions)
+      if (seg.station_a === currentStationId) {
+        nextStationId = seg.station_b;
+      } else if (seg.station_b === currentStationId) {
+        nextStationId = seg.station_a;
+      } else {
+        // Broken link! The segment doesn't connect to where we are
+        isValid = false;
+        break; 
+      }
+
+      // 3. Apply a random event
+      const randomEvent = events[Math.floor(Math.random() * events.length)];
+      coins += randomEvent.effect;
+
+      // Record the step for the UI
+      log.push({
+        step: i + 1,
+        from: currentStationId,
+        to: nextStationId,
+        event: randomEvent,
+        coinsAfter: coins
+      });
+
+      // Move forward
+      currentStationId = nextStationId;
+    }
+
+    // 4. Did we actually reach the destination?
+    if (isValid && currentStationId !== mission.destination.id) {
+      isValid = false;
+    }
+
+    // 5. Finalize the score
+    setIsValidRoute(isValid);
+    if (isValid) {
+      setFinalScore(coins < 0 ? 0 : coins); // Score cannot be negative
+      setExecutionLog(log);
+    } else {
+      setFinalScore(0); // If invalid, score is 0
+    }
+
     setPhase('execution');
   };
+
+
 
   if (loading) return <div>Loading...</div>;
 
@@ -91,7 +167,7 @@ function Game({ user }) {
         <div>
           <h3>Phase 1: Setup</h3>
           <p>Study the map carefully. When you are ready, start the 90 seconds timer.</p>
-          <button onClick={startGame} style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
+          <button onClick={startGame} style={{ padding: '10px 20px', cursor: 'pointer' }}>
             Ready! Start Game
           </button>
         </div>
@@ -101,64 +177,92 @@ function Game({ user }) {
       {phase === 'planning' && mission && (
         <div>
           <h3>Phase 2: Planning</h3>
-          <h4 style={{ color: timeLeft <= 10 ? 'red' : 'black' }}>
-            Time Left: {timeLeft} seconds
-          </h4>
-          
+          <h4 style={{ color: timeLeft <= 10 ? 'red' : 'black' }}>Time Left: {timeLeft} seconds</h4>
           <div style={{ backgroundColor: '#f0f8ff', padding: '15px', borderRadius: '5px', marginBottom: '20px' }}>
-            <strong>Mission:</strong> You must travel from <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>.
+            <strong>Mission:</strong> Travel from <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>.
           </div>
 
-          <div style={{ display: 'flex', gap: '30px' }}>
-            {/* Left Column: Available Segments */}
-            <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', gap: '20px' }}>
+            {/* Left column: available segments*/}
+            <div style={{ flex: 2 }}>
               <h4>Available Segments</h4>
-              <div style={{ height: '400px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', height: '400px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px' }}>
                 {segments.map(seg => {
-                  const isSelected = route.some(r => r.id === seg.id);
-                  if (isSelected) return null; // Hide already selected segments
-
+                  if (route.some(r => r.id === seg.id)) return null; // this hides already selected segments from the available list
                   return (
-                    <button 
-                      key={seg.id}
-                      onClick={() => addSegmentToRoute(seg)}
-                      style={{ display: 'block', width: '100%', marginBottom: '5px', padding: '8px', cursor: 'pointer', textAlign: 'left' }}
-                    >
-                      {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)} <small>({getLineName(seg.line_id)})</small>
+                    <button key={seg.id} onClick={() => addSegmentToRoute(seg)} style={{ padding: '6px', cursor: 'pointer', fontSize: '0.85em', border: '1px solid #999', borderRadius: '4px', backgroundColor: '#fff' }}>
+                      {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)} <br/>
+                      <span style={{ color: '#666', fontSize: '0.9em' }}>{getLineName(seg.line_id)}</span>
                     </button>
                   );
                 })}
               </div>
             </div>
-
-            {/* Right Column: Built Route */}
-            <div style={{ flex: 1 }}>
+                {/* Right column: built route */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <h4>Your Route ({route.length} steps)</h4>
-              <div style={{ height: '350px', overflowY: 'auto', border: '1px dashed #ccc', padding: '10px', backgroundColor: '#fafafa' }}>
-                {route.length === 0 ? <p style={{ color: '#888' }}>Select segments from the left to build your route...</p> : null}
+              <div style={{ flexGrow: 1, height: '320px', overflowY: 'auto', border: '1px dashed #ccc', padding: '10px', backgroundColor: '#fafafa' }}>
+                {route.length === 0 && <p style={{ color: '#888' }}>Select segments from the left to build your route...</p>}
                 {route.map((seg, index) => (
-                  <div key={seg.id} style={{ padding: '8px', borderBottom: '1px solid #eee' }}>
-                    {index + 1}. {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)}
+                  <div key={seg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px', borderBottom: '1px solid #eee', fontSize: '0.9em' }}>
+                    <span>{index + 1}. {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)}</span>
+                    <button onClick={() => removeSegmentFromRoute(seg.id)} style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', padding: '2px 6px' }}>X</button>
                   </div>
                 ))}
               </div>
-              
-              <button 
-                onClick={submitRoute}
-                style={{ width: '100%', padding: '12px', marginTop: '10px', backgroundColor: '#4CAF50', color: 'white', fontWeight: 'bold', cursor: 'pointer' }}
-              >
-                Submit Route
-              </button>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button onClick={clearRoute} disabled={route.length === 0} style={{ flex: 1, padding: '10px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: route.length === 0 ? 'not-allowed' : 'pointer', opacity: route.length === 0 ? 0.5 : 1 }}>Clear All</button>
+                <button onClick={submitRoute} style={{ flex: 2, padding: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Submit Route</button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* PHASE 3 & 4 (Placeholder for next step) */}
+      {/* PHASE 3 & 4: EXECUTION AND RESULT */}
       {phase === 'execution' && (
         <div>
           <h3>Phase 3: Execution</h3>
-          <p>Validating route and calculating events...</p>
+          
+          {!isValidRoute ? (
+            <div style={{ backgroundColor: '#ffebee', padding: '20px', border: '1px solid red', borderRadius: '5px' }}>
+              <h4 style={{ color: 'red' }}>Route Invalid or Incomplete!</h4>
+              <p>Your route didn't properly connect <b>{mission.start.name}</b> to <b>{mission.destination.name}</b>.</p>
+              <p>You lose all your coins. <b>Final Score: 0</b></p>
+            </div>
+          ) : (
+            <div>
+              <div style={{ backgroundColor: '#e8f5e9', padding: '20px', border: '1px solid green', borderRadius: '5px', marginBottom: '20px' }}>
+                <h4 style={{ color: 'green', margin: '0 0 10px 0' }}>Route Valid!</h4>
+                <p style={{ margin: 0 }}>You successfully connected the stations. Starting with 20 coins...</p>
+              </div>
+
+              <div style={{ border: '1px solid #ccc', padding: '15px' }}>
+                {executionLog.map((log) => (
+                  <div key={log.step} style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
+                    <strong>Step {log.step}:</strong> Travel from {getStationName(log.from)} to {getStationName(log.to)}
+                    <br/>
+                    <span style={{ color: log.event.effect >= 0 ? 'green' : 'red' }}>
+                      <em>Event: {log.event.description} ({log.event.effect > 0 ? '+' : ''}{log.event.effect} coins)</em>
+                    </span>
+                    <br/>
+                    <strong>Coins: {log.coinsAfter}</strong>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: '20px', fontSize: '1.2em', fontWeight: 'bold', textAlign: 'center', padding: '15px', backgroundColor: '#fff3cd' }}>
+                Final Score: {finalScore} coins
+              </div>
+            </div>
+          )}
+
+          <button 
+            onClick={() => setPhase('setup')} 
+            style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            Play Again
+          </button>
         </div>
       )}
     </div>
