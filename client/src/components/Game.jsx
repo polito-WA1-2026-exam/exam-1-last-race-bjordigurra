@@ -11,24 +11,25 @@ function Game({ user }) {
   // Game State
   const [phase, setPhase] = useState('setup'); // 'setup', 'planning', 'execution', 'result'
   const [mission, setMission] = useState(null);
-  const [route, setRoute] = useState([]); // Stores the segments chosen by the player
+  const [route, setRoute] = useState([]); 
   const [timeLeft, setTimeLeft] = useState(90);
   const [loading, setLoading] = useState(true);
 
   // Execution State
   const [isValidRoute, setIsValidRoute] = useState(false);
   const [executionLog, setExecutionLog] = useState([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0); // Tracks the "step by step" progress
   const [finalScore, setFinalScore] = useState(0);
 
   // Load initial map data
   useEffect(() => {
     async function loadData() {
       try {
-        const [s, l, seg, ev] = await Promise.all([getStations(), getSegments(), getEvents()]);
+        const [s, seg, ev] = await Promise.all([getStations(), getSegments(), getEvents()]);
         setStations(s);
         setEvents(ev);
 
-        const shuffledSegments = [...seg].sort(() => Math.random() - 0.5); // segment shuffling before displaying
+        const shuffledSegments = [...seg].sort(() => Math.random() - 0.5);
         setSegments(shuffledSegments);
       } catch (err) {
         console.error("Error loading map:", err);
@@ -39,7 +40,7 @@ function Game({ user }) {
     loadData();
   }, []);
 
-  // Timer logic for the Planning phase
+  // Timer logic
   useEffect(() => {
     let timer;
     if (phase === 'planning' && timeLeft > 0) {
@@ -47,13 +48,11 @@ function Game({ user }) {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
     } else if (phase === 'planning' && timeLeft === 0) {
-      // Time is up! Auto-submit the route
       submitRoute();
     }
     return () => clearInterval(timer);
   }, [phase, timeLeft]);
 
-  // Start the game: fetch mission and start timer
   const startGame = async () => {
     try {
       setLoading(true);
@@ -69,39 +68,31 @@ function Game({ user }) {
     }
   };
 
-  // Add a segment to the route
   const addSegmentToRoute = (segment) => {
-    // A segment can be selected only once
     if (!route.some(r => r.id === segment.id)) {
       setRoute([...route, segment]);
     }
   };
 
-  // Remove segment from the route
   const removeSegmentFromRoute = (segmentId) => {
     setRoute(route.filter(seg => seg.id !== segmentId));
   };
 
-  // Remove all segments from the route
   const clearRoute = () => setRoute([]);
 
-  // Helper to get station names
   const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
 
-
-// Validation logic that will be implemented in the Execution phase
+  // Validation Engine
   const submitRoute = async () => {
     let currentStationId = mission.start.id;
     let isValid = true;
-    let coins = 20; // Starting coins
+    let coins = 20; 
     let log = [];
 
-    // 1. A route must have at least one segment
     if (route.length === 0) {
       isValid = false;
     }
 
-    // 2. Traverse the route step by step
     for (let i = 0; i < route.length; i++) {
       const seg = route[i];
       let nextStationId = null;
@@ -115,7 +106,6 @@ function Game({ user }) {
         break; 
       }
 
-      // 3. Apply a random event
       const randomEvent = events[Math.floor(Math.random() * events.length)];
       coins += randomEvent.effect;
 
@@ -130,30 +120,47 @@ function Game({ user }) {
       currentStationId = nextStationId;
     }
 
-    // 4. Did we actually reach the destination?
     if (isValid && currentStationId !== mission.destination.id) {
       isValid = false;
     }
 
-    // 5. Finalize the score and save it to the Database
     const calculatedScore = isValid ? (coins < 0 ? 0 : coins) : 0;
     
     setIsValidRoute(isValid);
     setFinalScore(calculatedScore);
-    if (isValid) setExecutionLog(log);
-
-    // Save to database
-    try {
-      await saveGameScore(calculatedScore);
-      console.log("Game saved successfully with score:", calculatedScore);
-    } catch (error) {
-      console.error("Could not save game score:", error);
+    
+    if (isValid) {
+      setExecutionLog(log);
+      setCurrentStepIndex(0); // Start reading the log from step 0
+      setPhase('execution');
+    } else {
+      // Invalid route: phase is skipped, score is 0, save immediately
+      try {
+        await saveGameScore(0);
+      } catch (error) {
+        console.error("Could not save score:", error);
+      }
+      setPhase('result');
     }
-
-    setPhase('execution');
   };
 
-
+  // Handles stepping through the journey one event at a time
+  const handleNextStep = async () => {
+    const nextIndex = currentStepIndex + 1;
+    
+    if (nextIndex < executionLog.length) {
+      // Still traveling
+      setCurrentStepIndex(nextIndex);
+    } else {
+      // Journey finished! Save to DB and move to result
+      try {
+        await saveGameScore(finalScore);
+      } catch (error) {
+        console.error("Could not save score:", error);
+      }
+      setPhase('result');
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
 
@@ -182,12 +189,11 @@ function Game({ user }) {
           </div>
 
           <div style={{ display: 'flex', gap: '20px' }}>
-            {/* Left column: available segments*/}
             <div style={{ flex: 2 }}>
               <h4>Available Segments</h4>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', height: '400px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px' }}>
                 {segments.map(seg => {
-                  if (route.some(r => r.id === seg.id)) return null; // this hides already selected segments from the available list
+                  if (route.some(r => r.id === seg.id)) return null;
                   return (
                     <button key={seg.id} onClick={() => addSegmentToRoute(seg)} style={{ padding: '6px', cursor: 'pointer', fontSize: '0.85em', border: '1px solid #999', borderRadius: '4px', backgroundColor: '#fff' }}>
                       {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)} <br/>
@@ -196,7 +202,6 @@ function Game({ user }) {
                 })}
               </div>
             </div>
-                {/* Right column: built route */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
               <h4>Your Route ({route.length} steps)</h4>
               <div style={{ flexGrow: 1, height: '320px', overflowY: 'auto', border: '1px dashed #ccc', padding: '10px', backgroundColor: '#fafafa' }}>
@@ -217,47 +222,61 @@ function Game({ user }) {
         </div>
       )}
 
-      {/* PHASE 3 & 4: EXECUTION AND RESULT */}
-      {phase === 'execution' && (
+      {/* PHASE 3: EXECUTION (Step-by-step logic) */}
+      {phase === 'execution' && executionLog.length > 0 && (
         <div>
           <h3>Phase 3: Execution</h3>
+          <div style={{ border: '2px solid #2196F3', borderRadius: '8px', padding: '20px', maxWidth: '500px', backgroundColor: '#e3f2fd' }}>
+            <h4 style={{ margin: '0 0 15px 0' }}>Step {currentStepIndex + 1} of {executionLog.length}</h4>
+            <p style={{ fontSize: '1.1em' }}>
+              Traveling from <strong>{getStationName(executionLog[currentStepIndex].from)}</strong> to <strong>{getStationName(executionLog[currentStepIndex].to)}</strong>...
+            </p>
+            
+            <div style={{ margin: '20px 0', padding: '15px', backgroundColor: '#fff', borderRadius: '5px', borderLeft: `5px solid ${executionLog[currentStepIndex].event.effect >= 0 ? 'green' : 'red'}` }}>
+              <strong>Unexpected Event:</strong> {executionLog[currentStepIndex].event.description}
+              <br/>
+              <span style={{ color: executionLog[currentStepIndex].event.effect >= 0 ? 'green' : 'red', fontWeight: 'bold' }}>
+                Effect: {executionLog[currentStepIndex].event.effect > 0 ? '+' : ''}{executionLog[currentStepIndex].event.effect} coins
+              </span>
+            </div>
+
+            <h4 style={{ margin: '0 0 15px 0' }}>Current Coins: {executionLog[currentStepIndex].coinsAfter}</h4>
+
+            <button 
+              onClick={handleNextStep} 
+              style={{ width: '100%', padding: '12px', backgroundColor: '#2196F3', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}
+            >
+              {currentStepIndex + 1 === executionLog.length ? "Finish Journey" : "Next Step ➔"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* PHASE 4: RESULT */}
+      {phase === 'result' && (
+        <div style={{ maxWidth: '500px' }}>
+          <h3>Phase 4: Result</h3>
           
           {!isValidRoute ? (
             <div style={{ backgroundColor: '#ffebee', padding: '20px', border: '1px solid red', borderRadius: '5px' }}>
-              <h4 style={{ color: 'red' }}>Route Invalid or Incomplete!</h4>
+              <h4 style={{ color: 'red', marginTop: 0 }}>Route Invalid or Incomplete!</h4>
               <p>Your route didn't properly connect <b>{mission.start.name}</b> to <b>{mission.destination.name}</b>.</p>
-              <p>You lose all your coins. <b>Final Score: 0</b></p>
+              <p>You lose all your coins.</p>
             </div>
           ) : (
-            <div>
-              <div style={{ backgroundColor: '#e8f5e9', padding: '20px', border: '1px solid green', borderRadius: '5px', marginBottom: '20px' }}>
-                <h4 style={{ color: 'green', margin: '0 0 10px 0' }}>Route Valid!</h4>
-                <p style={{ margin: 0 }}>You successfully connected the stations. Starting with 20 coins...</p>
-              </div>
-
-              <div style={{ border: '1px solid #ccc', padding: '15px' }}>
-                {executionLog.map((log) => (
-                  <div key={log.step} style={{ marginBottom: '15px', paddingBottom: '10px', borderBottom: '1px solid #eee' }}>
-                    <strong>Step {log.step}:</strong> Travel from {getStationName(log.from)} to {getStationName(log.to)}
-                    <br/>
-                    <span style={{ color: log.event.effect >= 0 ? 'green' : 'red' }}>
-                      <em>Event: {log.event.description} ({log.event.effect > 0 ? '+' : ''}{log.event.effect} coins)</em>
-                    </span>
-                    <br/>
-                    <strong>Coins: {log.coinsAfter}</strong>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ marginTop: '20px', fontSize: '1.2em', fontWeight: 'bold', textAlign: 'center', padding: '15px', backgroundColor: '#fff3cd' }}>
-                Final Score: {finalScore} coins
-              </div>
-            </div>
+             <div style={{ backgroundColor: '#e8f5e9', padding: '20px', border: '1px solid green', borderRadius: '5px' }}>
+                <h4 style={{ color: 'green', marginTop: 0 }}>Journey Completed!</h4>
+                <p>You successfully navigated the metro system.</p>
+             </div>
           )}
+
+          <div style={{ marginTop: '20px', fontSize: '1.5em', fontWeight: 'bold', textAlign: 'center', padding: '20px', backgroundColor: '#fff3cd', borderRadius: '5px', border: '1px solid #ffeeba' }}>
+            Final Score: {finalScore} coins
+          </div>
 
           <button 
             onClick={() => setPhase('setup')} 
-            style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#2196F3', color: 'white', border: 'none', cursor: 'pointer' }}
+            style={{ marginTop: '20px', width: '100%', padding: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}
           >
             Play Again
           </button>
