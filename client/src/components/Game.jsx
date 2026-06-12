@@ -194,7 +194,6 @@ function Game({ user }) {
                   return (
                     <button key={seg.id} onClick={() => addSegmentToRoute(seg)} style={{ padding: '6px', cursor: 'pointer', fontSize: '0.85em', border: '1px solid #999', borderRadius: '4px', backgroundColor: '#fff' }}>
                       {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)} <br/>
-                      <span style={{ color: '#666', fontSize: '0.9em' }}>{getLineName(seg.line_id)}</span>
                     </button>
                   );
                 })}
