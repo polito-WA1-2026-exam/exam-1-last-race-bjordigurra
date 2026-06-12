@@ -56,7 +56,12 @@ db.serialize(() => {
 
     db.run(`CREATE TABLE stations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
+        name TEXT NOT NULL,
+        x INTEGER NOT NULL,
+        y INTEGER NOT NULL,
+        label_dx INTEGER,
+        label_dy INTEGER,
+        label_anchor TEXT
     )`);
 
     // The segments table represents the connections between stations.
@@ -98,17 +103,37 @@ db.serialize(() => {
     insertLine.finalize();
 
 
-    // Insert stations (25 stations, minimum is 12)
-    const insertStation = db.prepare(`INSERT INTO stations (name) VALUES (?)`);
+  // Stations with coordinates for map visualization and label positioning
+    const insertStation = db.prepare(`INSERT INTO stations (name, x, y, label_dx, label_dy, label_anchor) VALUES (?, ?, ?, ?, ?, ?)`);
     const stations = [
-        'Valmy', 'Gorge de Loup', 'Cathédrale St. Jean',      
-        'Bellecour', 'Guillotière', 'Saxe Gambetta', 'Garibaldi',       
-        'Perrache', 'Ampère Victor Hugo', 'Cordeliers', 'Hotel Pradel',
-        'Croix Paquet', 'Croix Rousse', 'Hénon', 'Cuire', 'Place Jean Jaurés', 'Jean Macé',
-        'Place Guichard', 'Vivier Merle', 'Brotteaux', 'Charpennes Hernu', 'Foch',
-        'Masséna', 'Villeurbanne', 'Gratte Ciel'      
+        /* 1 */ { name: 'Valmy', x: 10, y: 50, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 2 */ { name: 'Gorge de Loup', x: 28, y: 50, label_dx: 0, label_dy: 4.5, label_anchor: 'middle' },
+        /* 3 */ { name: 'Cathédrale St. Jean', x: 46, y: 50, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 4 */ { name: 'Bellecour', x: 64, y: 50, label_dx: -2, label_dy: 4, label_anchor: 'end' },
+        /* 5 */ { name: 'Guillotière', x: 82, y: 50, label_dx: 0, label_dy: 4.5, label_anchor: 'middle' },
+        /* 6 */ { name: 'Saxe', x: 100, y: 50, label_dx: -2, label_dy: -2.5, label_anchor: 'end' },
+        /* 7 */ { name: 'Garibaldi', x: 118, y: 50, label_dx: 0, label_dy: 4.5, label_anchor: 'middle' },
+        /* 8 */ { name: 'Perrache', x: 64, y: 90, label_dx: -3, label_dy: 1, label_anchor: 'end' },
+        /* 9 */ { name: 'Ampère Victor Hugo', x: 64, y: 70, label_dx: -3, label_dy: 1, label_anchor: 'end' },
+        /* 10 */ { name: 'Cordeliers', x: 64, y: 38, label_dx: -3, label_dy: 1, label_anchor: 'end' },
+        /* 11 */ { name: 'Hotel Pradel', x: 64, y: 25, label_dx: -3, label_dy: 1, label_anchor: 'end' },
+        /* 12 */ { name: 'Croix Paquet', x: 55, y: 15, label_dx: 2, label_dy: -1, label_anchor: 'start' },
+        /* 13 */ { name: 'Croix Rousse', x: 46, y: 5, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 14 */ { name: 'Hénon', x: 28, y: 5, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 15 */ { name: 'Cuire', x: 10, y: 5, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 16 */ { name: 'Place Jean Jaurés', x: 100, y: 90, label_dx: 3, label_dy: 1, label_anchor: 'start' },
+        /* 17 */ { name: 'Jean Macé', x: 100, y: 70, label_dx: 3, label_dy: 1, label_anchor: 'start' },
+        /* 18 */ { name: 'Place Guichard', x: 118, y: 40, label_dx: -2, label_dy: -2.5, label_anchor: 'end' },
+        /* 19 */ { name: 'Vivier Merle', x: 136, y: 40, label_dx: 3, label_dy: 1, label_anchor: 'start' },
+        /* 20 */ { name: 'Brotteaux', x: 136, y: 33, label_dx: -3, label_dy: 1, label_anchor: 'end' },
+        /* 21 */ { name: 'Charpennes Hernu', x: 136, y: 25, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 22 */ { name: 'Foch', x: 82, y: 25, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 23 */ { name: 'Masséna', x: 100, y: 25, label_dx: 0, label_dy: -3, label_anchor: 'middle' },
+        /* 24 */ { name: 'Villeurbanne', x: 154, y: 25, label_dx: 0, label_dy: 4.5, label_anchor: 'middle' },
+        /* 25 */ { name: 'Gratte Ciel', x: 172, y: 25, label_dx: 0, label_dy: -3, label_anchor: 'middle' }
     ];
-    stations.forEach(s => insertStation.run(s));
+
+    stations.forEach(s => insertStation.run(s.name, s.x, s.y, s.label_dx, s.label_dy, s.label_anchor));
     insertStation.finalize();
 
     // Insert segments 

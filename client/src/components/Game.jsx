@@ -82,6 +82,17 @@ function Game({ user }) {
 
   const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
 
+  // Helper for map colors based on Lyon's lines
+  const getLineColor = (lineId) => {
+    switch (lineId) {
+      case 1: return '#4CAF50'; // Green Line
+      case 2: return '#F44336'; // Red Line
+      case 3: return '#FF9800'; // Orange Line
+      case 4: return '#2196F3'; // Blue Line
+      default: return '#999999';
+    }
+  };
+
   // Validation Engine
   const submitRoute = async () => {
     let currentStationId = mission.start.id;
@@ -170,10 +181,63 @@ function Game({ user }) {
 
       {/* PHASE 1: SETUP */}
       {phase === 'setup' && (
-        <div>
-          <h3>Phase 1: Setup</h3>
-          <p>Study the map carefully. When you are ready, start the 90 seconds timer.</p>
-          <button onClick={startGame} style={{ padding: '10px 20px', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+          <h3 style={{ marginBottom: '15px', fontSize: '1.5em' }}>Phase 1: Setup</h3>
+          
+          {/* THE MAP */}
+          <div style={{ width: '100%', border: '2px solid #ccc', borderRadius: '8px', backgroundColor: '#fcfcfc', overflow: 'hidden', marginBottom: '20px' }}>
+            {/* viewBox allargato per dare margine (-5 -5 come coordinate di partenza) */}
+            <svg viewBox="0 -5 185 105" style={{ width: '100%', height: 'auto', maxHeight: '75vh', display: 'block' }}>              
+              {/* 1. Draw the lines (Segments) */}
+              {segments.map(seg => {
+                const stA = stations.find(s => s.id === seg.station_a);
+                const stB = stations.find(s => s.id === seg.station_b);
+                
+                if (!stA || !stB) return null;
+
+                return (
+                  <line 
+                    key={seg.id}
+                    x1={stA.x} 
+                    y1={stA.y} 
+                    x2={stB.x} 
+                    y2={stB.y} 
+                    stroke={getLineColor(seg.line_id)} 
+                    strokeWidth="1.2" /* Linee leggermente più fini */
+                  />
+                );
+              })}
+
+              {/* 2. Draw the stations (Nodes) with STATIC labels */}
+              {stations.map(st => (
+                <g key={st.id}>
+                  <circle 
+                    cx={st.x} 
+                    cy={st.y} 
+                    r="1.4" 
+                    fill="white" 
+                    stroke="#333" 
+                    strokeWidth="0.4" 
+                  />
+                  <text 
+                    x={st.x + (st.label_dx || 0)} 
+                    y={st.y + (st.label_dy || -3)} 
+                    fontSize="2.8" 
+                    textAnchor={st.label_anchor || 'middle'} 
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {st.name}
+                  </text>
+                </g>
+              ))}
+
+            </svg>
+          </div>
+
+          <button 
+            onClick={startGame} 
+            style={{ padding: '12px 30px', fontSize: '18px', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', fontWeight: 'bold' }}>
             Ready! Start Game
           </button>
         </div>
