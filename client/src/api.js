@@ -30,8 +30,23 @@ export async function getEvents() {
   return await response.json();
 }
 
+// Get mission for the planning phase (random start and destination)
 export async function getMission() {
   const response = await fetch(`${BASE_URL}/mission`, { credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch mission');
+  return await response.json();
+}
+
+// POST a new game score
+export async function saveGameScore(score) {
+  const response = await fetch(`${BASE_URL}/games`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ score }),
+    credentials: 'include', // Crucial to identify the logged-in user
+  });
+  if (!response.ok) throw new Error('Failed to save the game score');
   return await response.json();
 }

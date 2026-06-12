@@ -1,6 +1,6 @@
 // client/src/components/Game.jsx
 import { useState, useEffect } from 'react';
-import { getStations, getLines, getSegments, getMission, getEvents } from '../api';
+import { getStations, getLines, getSegments, getMission, getEvents, saveGameScore } from '../api';
 
 function Game({ user }) {
   // Map Data
@@ -92,8 +92,8 @@ function Game({ user }) {
   const getLineName = (id) => lines.find(l => l.id === id)?.name || 'Unknown';
 
 
-  // Validation logic that will be implemented in the Execution phase
-  const submitRoute = () => {
+// Validation logic that will be implemented in the Execution phase
+  const submitRoute = async () => {
     let currentStationId = mission.start.id;
     let isValid = true;
     let coins = 20; // Starting coins
@@ -109,13 +109,11 @@ function Game({ user }) {
       const seg = route[i];
       let nextStationId = null;
 
-      // Check if the segment connects to our current station (handling both directions)
       if (seg.station_a === currentStationId) {
         nextStationId = seg.station_b;
       } else if (seg.station_b === currentStationId) {
         nextStationId = seg.station_a;
       } else {
-        // Broken link! The segment doesn't connect to where we are
         isValid = false;
         break; 
       }
@@ -124,7 +122,6 @@ function Game({ user }) {
       const randomEvent = events[Math.floor(Math.random() * events.length)];
       coins += randomEvent.effect;
 
-      // Record the step for the UI
       log.push({
         step: i + 1,
         from: currentStationId,
@@ -133,7 +130,6 @@ function Game({ user }) {
         coinsAfter: coins
       });
 
-      // Move forward
       currentStationId = nextStationId;
     }
 
@@ -142,13 +138,19 @@ function Game({ user }) {
       isValid = false;
     }
 
-    // 5. Finalize the score
+    // 5. Finalize the score and save it to the Database
+    const calculatedScore = isValid ? (coins < 0 ? 0 : coins) : 0;
+    
     setIsValidRoute(isValid);
-    if (isValid) {
-      setFinalScore(coins < 0 ? 0 : coins); // Score cannot be negative
-      setExecutionLog(log);
-    } else {
-      setFinalScore(0); // If invalid, score is 0
+    setFinalScore(calculatedScore);
+    if (isValid) setExecutionLog(log);
+
+    // Save to database
+    try {
+      await saveGameScore(calculatedScore);
+      console.log("Game saved successfully with score:", calculatedScore);
+    } catch (error) {
+      console.error("Could not save game score:", error);
     }
 
     setPhase('execution');
