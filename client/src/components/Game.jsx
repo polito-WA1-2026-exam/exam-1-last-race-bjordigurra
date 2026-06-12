@@ -1,11 +1,10 @@
 // client/src/components/Game.jsx
 import { useState, useEffect } from 'react';
-import { getStations, getLines, getSegments, getMission, getEvents, saveGameScore } from '../api';
+import { getStations, getSegments, getMission, getEvents, saveGameScore } from '../api';
 
 function Game({ user }) {
   // Map Data
   const [stations, setStations] = useState([]);
-  const [lines, setLines] = useState([]);
   const [segments, setSegments] = useState([]);
   const [events, setEvents] = useState([]);
   
@@ -25,9 +24,8 @@ function Game({ user }) {
   useEffect(() => {
     async function loadData() {
       try {
-        const [s, l, seg, ev] = await Promise.all([getStations(), getLines(), getSegments(), getEvents()]);
+        const [s, l, seg, ev] = await Promise.all([getStations(), getSegments(), getEvents()]);
         setStations(s);
-        setLines(l);
         setEvents(ev);
 
         const shuffledSegments = [...seg].sort(() => Math.random() - 0.5); // segment shuffling before displaying
@@ -87,9 +85,8 @@ function Game({ user }) {
   // Remove all segments from the route
   const clearRoute = () => setRoute([]);
 
-  // Helpers to get names
+  // Helper to get station names
   const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
-  const getLineName = (id) => lines.find(l => l.id === id)?.name || 'Unknown';
 
 
 // Validation logic that will be implemented in the Execution phase
