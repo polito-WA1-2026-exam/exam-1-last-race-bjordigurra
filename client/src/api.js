@@ -50,3 +50,10 @@ export async function saveGameScore(score) {
   if (!response.ok) throw new Error('Failed to save the game score');
   return await response.json();
 }
+
+// Fetch global rankings
+export async function getRankings() {
+  const response = await fetch(`${BASE_URL}/rankings`);
+  if (!response.ok) throw new Error('Failed to fetch rankings');
+  return await response.json();
+}

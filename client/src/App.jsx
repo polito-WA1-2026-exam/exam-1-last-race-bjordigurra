@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Login from './components/Login';
 import Home from './components/Home';
 import Game from './components/Game';
+import Rankings from './components/Rankings';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -51,7 +52,7 @@ function App() {
   user ? <Game user={user} /> : <div>You must be logged in to play!</div>
 } />
         
-        <Route path="/rankings" element={<div>Global Rankings</div>} />
+        <Route path="/rankings" element={<Rankings />} />        
         <Route path="*" element={<div>404 - Page not found</div>} />
       </Routes>
     </BrowserRouter>
