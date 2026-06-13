@@ -93,7 +93,7 @@ db.serialize(() => {
     const insertGame = db.prepare(`INSERT INTO games (user_id, score) VALUES (?, ?)`);
     insertGame.run(1, 15); // anna06 scored 15
     insertGame.run(1, 24); // anna06 scored 24
-    insertGame.run(2, 0);  // bjordi_02 scored 0
+    insertGame.run(2, 16);  // bjordi_02 scored 16
     insertGame.finalize();
 
     // Insert lines (4 lines)
