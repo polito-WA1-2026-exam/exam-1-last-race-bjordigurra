@@ -21,19 +21,59 @@ function Navbar({ user, setUser }) {
   };
 
   return (
-    <nav style={{ padding: '10px', borderBottom: '1px solid black', marginBottom: '20px' }}>
-      <Link to="/" style={{ marginRight: '15px' }}>Home</Link>
-      <Link to="/rankings" style={{ marginRight: '15px' }}>Rankings</Link>
+    <nav style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      padding: '15px 20px', 
+      borderBottom: '1px solid #ddd', 
+      marginBottom: '20px',
+      backgroundColor: '#f8f9fa' 
+    }}>
+      
+      {/* Home and Rankings on the left */}
+      <div>
+        <Link to="/" style={{ marginRight: '20px', textDecoration: 'none', color: '#333', fontSize: '1.1em', fontWeight: 'bold' }}>Home</Link>
+        <Link to="/rankings" style={{ textDecoration: 'none', color: '#333', fontSize: '1.1em', fontWeight: 'bold' }}>Rankings</Link>
+      </div>
 
-      {user ? (
-        <>
-          <Link to="/game" style={{ marginRight: '15px' }}>Play Now</Link>
-          <span>Welcome, <b>{user.username}</b>! </span>
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <Link to="/login" style={{ marginRight: '15px' }}>Login</Link>
-      )}
+      {/* User and logout button on the right */}
+      <div>
+        {user ? (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span style={{ marginRight: '15px', fontSize: '1.05em' }}>
+              Welcome, <b>{user.username}</b>!
+            </span>
+            <button 
+              onClick={handleLogout}
+              style={{ 
+                padding: '6px 14px', 
+                backgroundColor: '#dc3545', 
+                color: 'white', 
+                border: 'none', 
+                borderRadius: '4px', 
+                cursor: 'pointer',
+                fontWeight: 'bold'
+              }}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link 
+            to="/login" 
+            style={{ 
+              textDecoration: 'none', 
+              color: '#0056b3', 
+              fontWeight: 'bold', 
+              fontSize: '1.1em' 
+            }}
+          >
+            Login
+          </Link>
+        )}
+      </div>
+      
     </nav>
   );
 }
