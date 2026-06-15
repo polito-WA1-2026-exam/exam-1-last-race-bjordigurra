@@ -177,7 +177,6 @@ function Game({ user }) {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Last Race - Player: {user.username}</h2>
 
       {/* PHASE 1: SETUP */}
       {phase === 'setup' && (
@@ -245,6 +244,8 @@ function Game({ user }) {
       {/* PHASE 2: PLANNING */}
       {phase === 'planning' && mission && (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '1100px', margin: '0 auto', gap: '15px' }}>
+        <h3 style={{ marginBottom: '15px', fontSize: '1.5em' }}>Phase 2: Planning</h3>
+
           
           {/* TOP: Mission & Timer Banner */}
           <div style={{ width: '100%', backgroundColor: '#f0f8ff', padding: '12px 20px', borderRadius: '8px', border: '1px solid #cce5ff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -375,65 +376,156 @@ function Game({ user }) {
 
         </div>
       )}
-
-      {/* PHASE 3: EXECUTION (Step-by-step logic) */}
+        {/* PHASE 3: EXECUTION (Step-by-step logic) */}
       {phase === 'execution' && executionLog.length > 0 && (
-        <div>
-          <h3>Phase 3: Execution</h3>
-          <div style={{ border: '2px solid #2196F3', borderRadius: '8px', padding: '20px', maxWidth: '500px', backgroundColor: '#e3f2fd' }}>
-            <h4 style={{ margin: '0 0 15px 0' }}>Step {currentStepIndex + 1} of {executionLog.length}</h4>
-            <p style={{ fontSize: '1.1em' }}>
-              Traveling from <strong>{getStationName(executionLog[currentStepIndex].from)}</strong> to <strong>{getStationName(executionLog[currentStepIndex].to)}</strong>...
-            </p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '800px', margin: '0 auto', gap: '20px' }}>
+          
+          <h3 style={{ margin: '0', fontSize: '1.8em', color: '#333' }}>Phase 3: Execution</h3>
+          <p style={{ color: '#666', fontSize: '1.1em', marginTop: '0' }}>Let's see how your journey unfolds...</p>
+
+          <div style={{ width: '100%', backgroundColor: '#fff', border: '1px solid #ddd', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', overflow: 'hidden' }}>
             
-            <div style={{ margin: '20px 0', padding: '15px', backgroundColor: '#fff', borderRadius: '5px', borderLeft: `5px solid ${executionLog[currentStepIndex].event.effect >= 0 ? 'green' : 'red'}` }}>
-              <strong>Unexpected Event:</strong> {executionLog[currentStepIndex].event.description}
-              <br/>
-              <span style={{ color: executionLog[currentStepIndex].event.effect >= 0 ? 'green' : 'red', fontWeight: 'bold' }}>
-                Effect: {executionLog[currentStepIndex].event.effect > 0 ? '+' : ''}{executionLog[currentStepIndex].event.effect} coins
+            {/* Journey progress step */}
+            <div style={{ backgroundColor: '#f8f9fa', padding: '15px 20px', borderBottom: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '1.2em', fontWeight: 'bold', color: '#555' }}>
+                Step {currentStepIndex + 1} <span style={{ color: '#aaa', fontWeight: 'normal' }}>of {executionLog.length}</span>
               </span>
             </div>
 
-            <h4 style={{ margin: '0 0 15px 0' }}>Current Coins: {executionLog[currentStepIndex].coinsAfter}</h4>
+            <div style={{ padding: '30px' }}>
+              {/* Segment information */}
+              <div style={{ textAlign: 'center', marginBottom: '30px', fontSize: '1.4em' }}>
+                Traveling from <br/>
+                <strong style={{ color: '#2196F3', fontSize: '1.2em' }}>{getStationName(executionLog[currentStepIndex].from)}</strong> 
+                <span style={{ margin: '0 15px', color: '#ccc' }}>➔</span> 
+                <strong style={{ color: '#2196F3', fontSize: '1.2em' }}>{getStationName(executionLog[currentStepIndex].to)}</strong>
+              </div>
+              
+              {/* Unexpeted event box */}
+              <div style={{ 
+                margin: '20px 0', 
+                padding: '20px', 
+                backgroundColor: executionLog[currentStepIndex].event.effect >= 0 ? '#f6fff6' : '#fff5f5', 
+                borderRadius: '8px', 
+                borderLeft: `6px solid ${executionLog[currentStepIndex].event.effect >= 0 ? '#4CAF50' : '#f44336'}`,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+              }}>
+                <div style={{ fontWeight: 'bold', marginBottom: '10px', fontSize: '1.1em', color: '#333' }}>
+                  ⚠️ Unexpected Event:
+                </div>
+                <div style={{ fontSize: '1.1em', lineHeight: '1.5', color: '#555' }}>
+                  {executionLog[currentStepIndex].event.description}
+                </div>
+                <div style={{ 
+                  marginTop: '15px', 
+                  fontSize: '1.3em', 
+                  color: executionLog[currentStepIndex].event.effect >= 0 ? '#28a745' : '#dc3545', 
+                  fontWeight: 'bold' 
+                }}>
+                  Effect: {executionLog[currentStepIndex].event.effect > 0 ? '+' : ''}{executionLog[currentStepIndex].event.effect} coins
+                </div>
+              </div>
 
-            <button 
-              onClick={handleNextStep} 
-              style={{ width: '100%', padding: '12px', backgroundColor: '#2196F3', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}
-            >
-              {currentStepIndex + 1 === executionLog.length ? "Finish Journey" : "Next Step ➔"}
-            </button>
+              {/* Coins counter */}
+              <div style={{ textAlign: 'center', marginTop: '30px', padding: '20px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba' }}>
+                <div style={{ fontSize: '1.1em', color: '#856404', marginBottom: '5px' }}>Current Coins</div>
+                <div style={{ fontSize: '2.5em', fontWeight: 'bold', color: '#856404', fontFamily: 'monospace' }}>
+                  🪙 {executionLog[currentStepIndex].coinsAfter}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Next / Finish button */}
+            <div style={{ padding: '20px', backgroundColor: '#f8f9fa', borderTop: '1px solid #eee' }}>
+              <button 
+                onClick={handleNextStep} 
+                style={{ 
+                  width: '100%', 
+                  padding: '15px', 
+                  backgroundColor: currentStepIndex + 1 === executionLog.length ? '#28a745' : '#2196F3', 
+                  color: 'white', 
+                  border: 'none', 
+                  fontWeight: 'bold', 
+                  cursor: 'pointer', 
+                  borderRadius: '8px',
+                  fontSize: '1.2em',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  transition: 'transform 0.1s'
+                }}
+                onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+                onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                {currentStepIndex + 1 === executionLog.length ? "🏁 Finish Journey" : "Next Step ➔"}
+              </button>
+            </div>
+
           </div>
         </div>
       )}
 
       {/* PHASE 4: RESULT */}
       {phase === 'result' && (
-        <div style={{ maxWidth: '500px' }}>
-          <h3>Phase 4: Result</h3>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '600px', margin: '40px auto 0 auto', gap: '25px' }}>
           
+          <h3 style={{ margin: '0', fontSize: '2.2em', color: '#333' }}>Phase 4: Result</h3>
+
           {!isValidRoute ? (
-            <div style={{ backgroundColor: '#ffebee', padding: '20px', border: '1px solid red', borderRadius: '5px' }}>
-              <h4 style={{ color: 'red', marginTop: 0 }}>Route Invalid or Incomplete!</h4>
-              <p>Your route didn't properly connect <b>{mission.start.name}</b> to <b>{mission.destination.name}</b>.</p>
-              <p>You lose all your coins.</p>
+            // INVALID ROUTE
+            <div style={{ width: '100%', backgroundColor: '#fff5f5', border: '2px solid #dc3545', borderRadius: '12px', padding: '30px', textAlign: 'center', boxShadow: '0 4px 12px rgba(220, 53, 69, 0.15)' }}>
+              <div style={{ fontSize: '3.5em', marginBottom: '10px' }}>❌</div>
+              <h4 style={{ color: '#dc3545', fontSize: '1.6em', margin: '0 0 15px 0' }}>Route Invalid or Incomplete!</h4>
+              <p style={{ fontSize: '1.1em', color: '#555', margin: '0 0 10px 0', lineHeight: '1.5' }}>
+                Your route didn't properly connect <br/>
+                <strong style={{ color: '#333' }}>{mission?.start?.name}</strong> to <strong style={{ color: '#333' }}>{mission?.destination?.name}</strong>.
+              </p>
+              <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#dc3545', color: 'white', borderRadius: '8px', fontSize: '1.2em', fontWeight: 'bold' }}>
+                You lost all your coins!
+              </div>
             </div>
           ) : (
-             <div style={{ backgroundColor: '#e8f5e9', padding: '20px', border: '1px solid green', borderRadius: '5px' }}>
-                <h4 style={{ color: 'green', marginTop: 0 }}>Journey Completed!</h4>
-                <p>You successfully navigated the metro system.</p>
-             </div>
+            // SUCCESS
+            <div style={{ width: '100%', backgroundColor: '#f6fff6', border: '2px solid #28a745', borderRadius: '12px', padding: '30px', textAlign: 'center', boxShadow: '0 4px 12px rgba(40, 167, 69, 0.15)' }}>
+              <div style={{ fontSize: '3.5em', marginBottom: '10px' }}>🎉</div>
+              <h4 style={{ color: '#28a745', fontSize: '1.6em', margin: '0 0 15px 0' }}>Journey Completed!</h4>
+              <p style={{ fontSize: '1.1em', color: '#555', margin: '0', lineHeight: '1.5' }}>
+                You successfully navigated the metro system!
+              </p>
+            </div>
           )}
 
-          <div style={{ marginTop: '20px', fontSize: '1.5em', fontWeight: 'bold', textAlign: 'center', padding: '20px', backgroundColor: '#fff3cd', borderRadius: '5px', border: '1px solid #ffeeba' }}>
-            Final Score: {finalScore} coins
+          {/* FINAL SCORE BOX */}
+          <div style={{ width: '100%', backgroundColor: '#fff', border: '2px solid #ffc107', borderRadius: '12px', padding: '30px', textAlign: 'center', boxShadow: '0 4px 12px rgba(255, 193, 7, 0.15)' }}>
+            <div style={{ fontSize: '1.1em', color: '#888', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>
+              Final Score
+            </div>
+            <div style={{ fontSize: '4em', fontWeight: 'bold', color: '#d39e00', fontFamily: 'monospace', textShadow: '1px 1px 0px #ffeeba' }}>
+              🪙 {finalScore}
+            </div>
           </div>
 
+          {/* PLAY AGAIN BUTTON */}
           <button 
-            onClick={() => setPhase('setup')} 
-            style={{ marginTop: '20px', width: '100%', padding: '12px', backgroundColor: '#4CAF50', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer', borderRadius: '4px' }}
+            onClick={() => window.dispatchEvent(new Event('reset-game'))} 
+            style={{ 
+              width: '100%', 
+              padding: '16px', 
+              backgroundColor: '#4CAF50', 
+              color: 'white', 
+              border: 'none', 
+              fontWeight: 'bold', 
+              cursor: 'pointer', 
+              borderRadius: '8px',
+              fontSize: '1.3em',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+              transition: 'transform 0.1s'
+            }}
+            onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.98)'}
+            onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            Play Again
+            🔄 Play again
           </button>
+
         </div>
       )}
     </div>
