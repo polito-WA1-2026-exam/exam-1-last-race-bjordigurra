@@ -1,5 +1,6 @@
 // client/src/components/Navbar.jsx
 import { Link, useNavigate } from 'react-router-dom';
+import './Navbar.css';
 
 function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -21,54 +22,27 @@ function Navbar({ user, setUser }) {
   };
 
   return (
-    <nav style={{ 
-      display: 'flex', 
-      justifyContent: 'space-between', 
-      alignItems: 'center', 
-      padding: '15px 20px', 
-      borderBottom: '1px solid #ddd', 
-      marginBottom: '20px',
-      backgroundColor: '#f8f9fa' 
-    }}>
+    <nav className="navbar">
       
-      {/* Home and Rankings on the left */}
-      <div>
-        <Link to="/" style={{ marginRight: '20px', textDecoration: 'none', color: '#333', fontSize: '1.1em', fontWeight: 'bold' }}>Home</Link>
-        <Link to="/rankings" style={{ textDecoration: 'none', color: '#333', fontSize: '1.1em', fontWeight: 'bold' }}>Rankings</Link>
+      {/* Homepage and rankings on the left */}
+      <div className="nav-links">
+        <Link to="/" className="nav-link">Home</Link>
+        <Link to="/rankings" className="nav-link">Rankings</Link>
       </div>
 
-      {/* User and logout button on the right */}
-      <div>
+      {/* User and login/logout on the right */}
+      <div className="nav-user-area">
         {user ? (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span style={{ marginRight: '15px', fontSize: '1.05em' }}>
+          <>
+            <span className="welcome-text">
               Welcome, <b>{user.username}</b>!
             </span>
-            <button 
-              onClick={handleLogout}
-              style={{ 
-                padding: '6px 14px', 
-                backgroundColor: '#dc3545', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: '4px', 
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
+            <button onClick={handleLogout} className="btn-logout">
               Logout
             </button>
-          </div>
+          </>
         ) : (
-          <Link 
-            to="/login" 
-            style={{ 
-              textDecoration: 'none', 
-              color: '#0056b3', 
-              fontWeight: 'bold', 
-              fontSize: '1.1em' 
-            }}
-          >
+          <Link to="/login" className="nav-login">
             Login
           </Link>
         )}

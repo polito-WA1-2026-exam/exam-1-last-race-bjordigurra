@@ -1,0 +1,27 @@
+/* client/src/index.css */
+
+/* Global colors*/
+:root {
+  --primary-color: #4CAF50;
+  --primary-hover: #45a049;
+  --danger-color: #f44336;
+  --danger-hover: #e53935;
+  --text-main: #333333;
+  --text-muted: #666666;
+  --bg-light: #f4f7f6;
+  --bg-white: #ffffff;
+  --border-color: #dddddd;
+}
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-light);
+  color: var(--text-main);
+}
