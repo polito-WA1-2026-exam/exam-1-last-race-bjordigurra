@@ -186,7 +186,6 @@ function Game({ user }) {
           
           {/* THE MAP */}
           <div style={{ width: '100%', border: '2px solid #ccc', borderRadius: '8px', backgroundColor: '#fcfcfc', overflow: 'hidden', marginBottom: '20px' }}>
-            {/* viewBox allargato per dare margine (-5 -5 come coordinate di partenza) */}
             <svg viewBox="0 -5 185 105" style={{ width: '100%', height: 'auto', maxHeight: '75vh', display: 'block' }}>              
               {/* 1. Draw the lines (Segments) */}
               {segments.map(seg => {
@@ -203,7 +202,7 @@ function Game({ user }) {
                     x2={stB.x} 
                     y2={stB.y} 
                     stroke={getLineColor(seg.line_id)} 
-                    strokeWidth="1.2" /* Linee leggermente più fini */
+                    strokeWidth="1.2"
                   />
                 );
               })}
@@ -245,44 +244,135 @@ function Game({ user }) {
 
       {/* PHASE 2: PLANNING */}
       {phase === 'planning' && mission && (
-        <div>
-          <h3>Phase 2: Planning</h3>
-          <h4 style={{ color: timeLeft <= 10 ? 'red' : 'black' }}>Time Left: {timeLeft} seconds</h4>
-          <div style={{ backgroundColor: '#f0f8ff', padding: '15px', borderRadius: '5px', marginBottom: '20px' }}>
-            <strong>Mission:</strong> Travel from <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>.
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', maxWidth: '1100px', margin: '0 auto', gap: '15px' }}>
+          
+          {/* TOP: Mission & Timer Banner */}
+          <div style={{ width: '100%', backgroundColor: '#f0f8ff', padding: '12px 20px', borderRadius: '8px', border: '1px solid #cce5ff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ fontSize: '1.1em' }}>
+              <strong style={{ color: '#0056b3' }}>Mission:</strong>
+              <span style={{ marginLeft: '10px' }}>
+                From <u style={{ fontWeight: 'bold' }}>{mission.start.name}</u> to <u style={{ fontWeight: 'bold' }}>{mission.destination.name}</u>
+              </span>
+            </div>
+            <h4 style={{ margin: 0, color: timeLeft <= 10 ? 'red' : '#333', fontSize: '1.3em', fontFamily: 'monospace' }}>
+              ⏳ {timeLeft}s
+            </h4>
           </div>
 
-          <div style={{ display: 'flex', gap: '20px' }}>
-            <div style={{ flex: 2 }}>
-              <h4>Available Segments</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '8px', height: '400px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px' }}>
+          {/* MIDDLE: The "Blind" Map */}
+          <div style={{ width: '100%', border: '2px solid #ccc', borderRadius: '8px', backgroundColor: '#fcfcfc', overflow: 'hidden' }}>
+            <svg viewBox="0 -5 185 105" style={{ width: '100%', height: 'auto', maxHeight: '70vh', display: 'block' }}>
+              {/* Draw only the stations (Nodes) */}
+              {stations.map(st => (
+                <g key={st.id}>
+                  <circle cx={st.x} cy={st.y} r="1.4" fill="white" stroke="#333" strokeWidth="0.4" />
+                  <text 
+                    x={st.x + (st.label_dx || 0)} 
+                    y={st.y + (st.label_dy || -3)} 
+                    fontSize="2.8" 
+                    textAnchor={st.label_anchor || 'middle'} 
+                    fill="#333"
+                    fontWeight="bold"
+                    style={{ pointerEvents: 'none', userSelect: 'none' }}
+                  >
+                    {st.name}
+                  </text>
+                </g>
+              ))}
+            </svg>
+          </div>
+
+          {/* BOTTOM: Lists (Grid + Column) */}
+          <div style={{ display: 'flex', width: '100%', gap: '20px' }}>
+            
+            {/* Left Box: Available Segments (GRID LAYOUT) */}
+            <div style={{ flex: 2, display: 'flex', flexDirection: 'column' }}>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1em', color: '#444' }}>Available Segments</h4>
+              <div style={{ 
+                height: '300px', 
+                overflowY: 'auto', 
+                border: '1px solid #bbb', 
+                borderRadius: '6px', 
+                padding: '10px', 
+                backgroundColor: '#fff', 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fill, minmax(210px, 1fr))', 
+                gap: '8px',
+                alignContent: 'start'
+              }}>
                 {segments.map(seg => {
                   if (route.some(r => r.id === seg.id)) return null;
                   return (
-                    <button key={seg.id} onClick={() => addSegmentToRoute(seg)} style={{ padding: '6px', cursor: 'pointer', fontSize: '0.85em', border: '1px solid #999', borderRadius: '4px', backgroundColor: '#fff' }}>
-                      {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)} <br/>
+                    <button 
+                      key={seg.id} 
+                      onClick={() => addSegmentToRoute(seg)} 
+                      style={{ 
+                        padding: '8px', 
+                        cursor: 'pointer', 
+                        fontSize: '0.9em', 
+                        border: '1px solid #ddd', 
+                        borderRadius: '4px', 
+                        backgroundColor: '#fdfdfd', 
+                        textAlign: 'center', 
+                        transition: 'background-color 0.2s'
+                      }}
+                      onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f0f7ff'; e.currentTarget.style.borderColor = '#2196F3'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fdfdfd'; e.currentTarget.style.borderColor = '#ddd'; }}
+                    >
+                      <strong>{getStationName(seg.station_a)}</strong> <br/>
+                      <span style={{ color: '#888', fontSize: '0.9em' }}>↕</span> <br/>
+                      <strong>{getStationName(seg.station_b)}</strong>
                     </button>
                   );
                 })}
               </div>
             </div>
+
+            {/* Right Box: Your Route */}
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <h4>Your Route ({route.length} steps)</h4>
-              <div style={{ flexGrow: 1, height: '320px', overflowY: 'auto', border: '1px dashed #ccc', padding: '10px', backgroundColor: '#fafafa' }}>
-                {route.length === 0 && <p style={{ color: '#888' }}>Select segments from the left to build your route...</p>}
-                {route.map((seg, index) => (
-                  <div key={seg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px', borderBottom: '1px solid #eee', fontSize: '0.9em' }}>
-                    <span>{index + 1}. {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)}</span>
-                    <button onClick={() => removeSegmentFromRoute(seg.id)} style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '3px', cursor: 'pointer', padding: '2px 6px' }}>X</button>
-                  </div>
-                ))}
-              </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                <button onClick={clearRoute} disabled={route.length === 0} style={{ flex: 1, padding: '10px', backgroundColor: '#f44336', color: 'white', border: 'none', cursor: route.length === 0 ? 'not-allowed' : 'pointer', opacity: route.length === 0 ? 0.5 : 1 }}>Clear All</button>
-                <button onClick={submitRoute} style={{ flex: 2, padding: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}>Submit Route</button>
+              <h4 style={{ margin: '0 0 8px 0', fontSize: '1.1em', color: '#444' }}>Your Route ({route.length} steps)</h4>
+              <div style={{ height: '300px', overflowY: 'auto', border: '1px dashed #aaa', borderRadius: '6px', padding: '10px', backgroundColor: '#f9f9f9', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {route.length === 0 ? (
+                  <p style={{ color: '#888', margin: 'auto', fontSize: '0.95em', textAlign: 'center', fontStyle: 'italic' }}>
+                    Select segments...
+                  </p>
+                ) : (
+                  route.map((seg, index) => (
+                    <div key={seg.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', backgroundColor: '#fff', border: '1px solid #dee2e6', borderRadius: '4px' }}>
+                      <span style={{ fontSize: '0.9em' }}>
+                        <span style={{ color: '#666', marginRight: '5px' }}>{index + 1}.</span>
+                        {getStationName(seg.station_a)} ↔ {getStationName(seg.station_b)}
+                      </span>
+                      <button 
+                        onClick={() => removeSegmentFromRoute(seg.id)} 
+                        style={{ backgroundColor: '#ff4d4d', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', padding: '4px 8px', fontWeight: 'bold', fontSize: '0.8em' }}
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
+
+          {/* ACTION BUTTONS */}
+          <div style={{ display: 'flex', gap: '15px', width: '100%', marginBottom: '30px' }}>
+            <button 
+              onClick={clearRoute} 
+              disabled={route.length === 0} 
+              style={{ flex: 1, padding: '12px', backgroundColor: '#f44336', color: 'white', border: 'none', borderRadius: '6px', cursor: route.length === 0 ? 'not-allowed' : 'pointer', opacity: route.length === 0 ? 0.5 : 1, fontWeight: 'bold', fontSize: '1.05em' }}
+            >
+              Clear All
+            </button>
+            <button 
+              onClick={submitRoute} 
+              style={{ flex: 2, padding: '12px', backgroundColor: '#28a745', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer', fontSize: '1.1em' }}
+            >
+              Submit Route
+            </button>
+          </div>
+
         </div>
       )}
 
