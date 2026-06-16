@@ -1,0 +1,96 @@
+/* client/src/components/Home.css */
+
+.home-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  line-height: 1.6;
+}
+
+.home-title {
+  text-align: center;
+  font-size: 2.8em;
+  margin-bottom: 10px;
+  color: var(--text-main);
+}
+
+.home-subtitle {
+  text-align: center;
+  font-size: 1.2em;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+}
+
+.rules-card {
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.rules-title {
+  margin-top: 0;
+  border-bottom: 2px solid var(--border-color);
+  padding-bottom: 10px;
+  color: var(--text-main);
+}
+
+.phase-block {
+  margin-bottom: 25px;
+}
+
+.phase-block h3 {
+  margin-bottom: 5px;
+}
+
+.phase-1-title { color: #2196F3; }
+.phase-2-title { color: #FF9800; }
+.phase-3-title { color: var(--primary-color); }
+
+.phase-desc {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.cta-container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.cta-text {
+  font-size: 1.1em;
+  margin-bottom: 15px;
+}
+
+.btn-play-huge {
+  display: inline-block;
+  padding: 15px 40px;
+  font-size: 1.5em;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.btn-play-huge:hover {
+  transform: scale(1.05);
+  background-color: var(--primary-hover);
+}
+
+.login-prompt {
+  padding: 20px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.login-prompt p {
+  margin: 0;
+  font-size: 1.1em;
+  color: #856404;
+}
