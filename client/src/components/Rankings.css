@@ -1,0 +1,62 @@
+/* client/src/components/Rankings.css */
+
+.rankings-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: var(--bg-white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.rankings-title {
+  text-align: center;
+  margin-top: 0;
+  color: var(--text-main);
+}
+
+.rankings-subtitle {
+  text-align: center;
+  color: var(--text-muted);
+  margin-bottom: 25px;
+}
+
+.empty-message {
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.rankings-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.rankings-table th {
+  padding: 12px 10px;
+  text-align: left;
+  border-bottom: 2px solid var(--border-color);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-size: 0.9em;
+}
+
+.rankings-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/* Stile speciale per il primo classificato */
+.rank-row-first {
+  background-color: #fff9db;
+}
+
+.rank-row-first td {
+  font-weight: bold;
+  color: #b08d00;
+}
+
+.rank-bold {
+  font-weight: bold;
+}

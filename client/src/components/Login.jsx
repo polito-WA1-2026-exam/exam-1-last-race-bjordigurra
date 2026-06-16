@@ -1,6 +1,7 @@
 // client/src/components/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Login.css';
 
 function Login({ setUser }) {
   const [username, setUsername] = useState('');
@@ -11,7 +12,7 @@ function Login({ setUser }) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setErrorMessage(''); // Clear any previous errors
+    setErrorMessage('');
 
     try {
       const response = await fetch('http://localhost:3001/api/sessions', {
@@ -20,13 +21,13 @@ function Login({ setUser }) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ username, password }),
-        credentials: 'include', // Include cookies for session management
+        credentials: 'include',
       });
 
       if (response.ok) {
         const userData = await response.json();
-        setUser(userData); // Save the user in App.jsx state
-        navigate('/');     // Redirect to the Home page
+        setUser(userData);
+        navigate('/');
       } else {
         setErrorMessage('Incorrect username or password.');
       }
@@ -37,36 +38,35 @@ function Login({ setUser }) {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxWidth: '300px' }}>
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
+      <form onSubmit={handleSubmit} className="login-form">
         
-        {/* Error message display */}
-        {errorMessage && <p style={{ color: 'red', fontWeight: 'bold' }}>{errorMessage}</p>}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Username:</label>
+        <div className="form-group">
+          <label className="form-label">Username:</label>
           <input 
             type="text" 
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             required 
-            style={{ width: '100%', padding: '8px' }}
+            className="form-input"
           />
         </div>
         
-        <div style={{ marginBottom: '15px' }}>
-          <label style={{ display: 'block', marginBottom: '5px' }}>Password:</label>
+        <div className="form-group">
+          <label className="form-label">Password:</label>
           <input 
             type="password" 
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
             required 
-            style={{ width: '100%', padding: '8px' }}
+            className="form-input"
           />
         </div>
         
-        <button type="submit" style={{ padding: '10px', cursor: 'pointer' }}>Login</button>
+        <button type="submit" className="btn-submit">Login</button>
       </form>
     </div>
   );

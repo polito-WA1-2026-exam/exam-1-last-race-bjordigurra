@@ -1,6 +1,7 @@
 // client/src/components/Rankings.jsx
 import { useState, useEffect } from 'react';
 import { getRankings } from '../api';
+import './Rankings.css';
 
 function Rankings() {
   const [rankings, setRankings] = useState([]);
@@ -22,38 +23,37 @@ function Rankings() {
     fetchScores();
   }, []);
 
-  if (loading) return <div>Loading rankings...</div>;
-  if (error) return <div style={{ color: 'red', fontWeight: 'bold' }}>{error}</div>;
+  if (loading) return <div style={{ textAlign: 'center', marginTop: '50px' }}>Loading rankings...</div>;
+  if (error) return <div style={{ color: 'red', textAlign: 'center', marginTop: '50px', fontWeight: 'bold' }}>{error}</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Global Rankings</h2>
-      <p>Here are the best scores achieved by our players.</p>
+    <div className="rankings-container">
+      <h2 className="rankings-title">Global rankings</h2>
+      <p className="rankings-subtitle">Here are the best scores achieved by our players.</p>
 
       {rankings.length === 0 ? (
-        <p style={{ color: '#666', fontStyle: 'italic' }}>No games recorded yet. Be the first to play!</p>
+        <p className="empty-message">No games recorded yet. Be the first to play!</p>
       ) : (
-        <table style={{ width: '100%', maxWidth: '500px', borderCollapse: 'collapse', marginTop: '15px' }}>
+        <table className="rankings-table">
           <thead>
-            <tr style={{ borderBottom: '2px solid #ccc', textAlign: 'left' }}>
-              <th style={{ padding: '10px' }}>Rank</th>
-              <th style={{ padding: '10px' }}>Username</th>
-              <th style={{ padding: '10px' }}>Best Score</th>
+            <tr>
+              <th>Rank</th>
+              <th>Username</th>
+              <th>Best Score</th>
             </tr>
           </thead>
           <tbody>
             {rankings.map((row, index) => {
-              // Highlight the podium or first place if you want, or just generic styles
               const isFirst = index === 0;
               return (
-                <tr key={row.username} style={{ borderBottom: '1px solid #eee', backgroundColor: isFirst ? '#fff9db' : 'transparent' }}>
-                  <td style={{ padding: '10px', fontWeight: isFirst ? 'bold' : 'normal' }}>
+                <tr key={row.username} className={isFirst ? "rank-row-first" : ""}>
+                  <td className={isFirst ? "" : "rank-bold"}>
                     {isFirst ? '🏆 1' : index + 1}
                   </td>
-                  <td style={{ padding: '10px', fontWeight: isFirst ? 'bold' : 'normal' }}>
+                  <td>
                     {row.username}
                   </td>
-                  <td style={{ padding: '10px', fontWeight: 'bold' }}>
+                  <td className="rank-bold">
                     {row.best_score} coins
                   </td>
                 </tr>

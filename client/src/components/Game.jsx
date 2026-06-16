@@ -1,7 +1,7 @@
 // client/src/components/Game.jsx
 import { useState, useEffect } from 'react';
 import { getStations, getSegments, getMission, getEvents, saveGameScore } from '../api';
-import './Game.css'; // <--- IMPORTIAMO IL CSS QUI
+import './Game.css'; 
 
 function Game({ user }) {
   // Map Data
@@ -191,7 +191,7 @@ function Game({ user }) {
       {/* PHASE 1: SETUP */}
       {phase === 'setup' && (
         <div className="phase-container">
-          <h3 className="phase-title">Phase 1: Setup</h3>
+          <h3 className="phase-title">Setup</h3>
           
           <div className="map-box">
             <svg viewBox="0 -5 185 105" className="map-svg setup">              
@@ -237,19 +237,8 @@ function Game({ user }) {
       {/* PHASE 2: PLANNING */}
       {phase === 'planning' && mission && (
         <div className="phase-container planning-container">
-          <h3 className="phase-title">Phase 2: Planning</h3>
+          <h3 className="phase-title">Planning</h3>
           
-          <div className="mission-banner">
-            <div className="mission-text">
-              <strong>Mission:</strong>
-              <span style={{ marginLeft: '10px' }}>
-                From <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>
-              </span>
-            </div>
-            <h4 className={`timer ${timeLeft <= 10 ? 'danger' : 'safe'}`}>
-              ⏳ {timeLeft}s
-            </h4>
-          </div>
 
           <div className="map-box">
             <svg viewBox="0 -5 185 105" className="map-svg planning">
@@ -272,9 +261,21 @@ function Game({ user }) {
             </svg>
           </div>
 
+          <div className="mission-banner">
+            <div className="mission-text">
+              <strong>Mission:</strong>
+              <span style={{ marginLeft: '10px' }}>
+                From <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>
+              </span>
+            </div>
+            <h4 className={`timer ${timeLeft <= 10 ? 'danger' : 'safe'}`}>
+              ⏳ {timeLeft}s
+            </h4>
+          </div>
+
           <div className="lists-container">
             <div className="flex-2">
-              <h4 className="box-title">Available Segments</h4>
+              <h4 className="box-title">Available segments</h4>
               <div className="segments-grid">
                 {segments.map(seg => {
                   if (route.some(r => r.id === seg.id)) return null;
@@ -294,7 +295,7 @@ function Game({ user }) {
             </div>
 
             <div className="flex-1">
-              <h4 className="box-title">Your Route ({route.length} steps)</h4>
+              <h4 className="box-title">Your route ({route.length} steps)</h4>
               <div className="route-list">
                 {route.length === 0 ? (
                   <p style={{ color: '#888', margin: 'auto', fontSize: '0.95em', textAlign: 'center', fontStyle: 'italic' }}>
@@ -327,14 +328,14 @@ function Game({ user }) {
               className="btn-danger"
               style={{ flex: 1 }}
             >
-              Clear All
+              Clear all
             </button>
             <button 
               onClick={submitRoute} 
               className="btn-success"
               style={{ flex: 2 }}
             >
-              Submit Route
+              Submit route
             </button>
           </div>
 
@@ -344,7 +345,7 @@ function Game({ user }) {
       {/* PHASE 3: EXECUTION */}
       {phase === 'execution' && executionLog.length > 0 && (
         <div className="phase-container execution-container">
-          <h3 className="execution-title">Phase 3: Execution</h3>
+          <h3 className="execution-title">Execution</h3>
           <p className="execution-subtitle">Let's see how your journey unfolds...</p>
 
           <div className="execution-panel">
@@ -363,7 +364,7 @@ function Game({ user }) {
               </div>
               
               <div className={`event-box ${executionLog[currentStepIndex].event.effect >= 0 ? 'event-positive' : 'event-negative'}`}>
-                <div className="event-title">⚠️ Unexpected Event:</div>
+                <div className="event-title">⚠️ Unexpected event:</div>
                 <div className="event-desc">{executionLog[currentStepIndex].event.description}</div>
                 <div className={`event-effect ${executionLog[currentStepIndex].event.effect >= 0 ? 'effect-positive' : 'effect-negative'}`}>
                   Effect: {executionLog[currentStepIndex].event.effect > 0 ? '+' : ''}{executionLog[currentStepIndex].event.effect} coins
@@ -371,7 +372,7 @@ function Game({ user }) {
               </div>
 
               <div className="coins-counter">
-                <div className="coins-label">Current Coins</div>
+                <div className="coins-label">Current coins</div>
                 <div className="coins-value">
                   🪙 {executionLog[currentStepIndex].coinsAfter}
                 </div>
@@ -383,7 +384,7 @@ function Game({ user }) {
                 onClick={handleNextStep} 
                 className={`btn-next ${currentStepIndex + 1 === executionLog.length ? 'finished' : 'traveling'}`}
               >
-                {currentStepIndex + 1 === executionLog.length ? "🏁 Finish Journey" : "Next Step ➔"}
+                {currentStepIndex + 1 === executionLog.length ? "Finish journey" : "Next step ➔"}
               </button>
             </div>
           </div>
@@ -393,12 +394,12 @@ function Game({ user }) {
       {/* PHASE 4: RESULT */}
       {phase === 'result' && (
         <div className="phase-container result-container">
-          <h3 className="result-title">Phase 4: Result</h3>
+          <h3 className="result-title">Result</h3>
 
           {!isValidRoute ? (
             <div className="result-box result-invalid">
               <div className="result-icon">❌</div>
-              <h4 className="invalid-title">Route Invalid or Incomplete!</h4>
+              <h4 className="invalid-title">Route invalid or incomplete!</h4>
               <p className="result-desc">
                 Your route didn't properly connect <br/>
                 <strong>{mission?.start?.name}</strong> to <strong>{mission?.destination?.name}</strong>.
@@ -408,7 +409,7 @@ function Game({ user }) {
           ) : (
             <div className="result-box result-success">
               <div className="result-icon">🎉</div>
-              <h4 className="success-title">Journey Completed!</h4>
+              <h4 className="success-title">Journey completed!</h4>
               <p className="result-desc">You successfully navigated the metro system!</p>
             </div>
           )}
@@ -422,7 +423,7 @@ function Game({ user }) {
             onClick={() => window.dispatchEvent(new Event('reset-game'))} 
             className="btn-play-again"
           >
-            🔄 Play again
+            Play again
           </button>
         </div>
       )}

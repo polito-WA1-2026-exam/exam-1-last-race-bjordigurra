@@ -7,26 +7,26 @@ function Home({ user }) {
     <div className="home-container">
       
       {/* HEADER */}
-      <h1 className="home-title">Welcome to Last Race 🚇</h1>
+      <h1 className="home-title">🚇 Last Race</h1>
       <p className="home-subtitle">
-        Navigate the Lyon metro system, avoid unexpected delays, and keep your coins safe!
+        Navigate the metro system, avoid unexpected delays and keep your coins safe!
       </p>
 
       {/* GAME RULES */}
       <div className="rules-card">
-        <h2 className="rules-title">How to Play</h2>
+        <h2 className="rules-title">How to play</h2>
 
         <div className="phase-block">
           <h3 className="phase-1-title">Phase 1: Setup</h3>
           <p className="phase-desc">
-            Study the full metro network map carefully. Memorize the lines, interchange stations, and connections. When you feel ready, start the timer!
+            Study the full metro network map carefully. Memorize the lines, interchange stations, and connections. When you are ready, start the timer!
           </p>
         </div>
 
         <div className="phase-block">
           <h3 className="phase-2-title">Phase 2: Planning</h3>
           <p className="phase-desc">
-            The colored lines will disappear! You have <strong>90 seconds</strong> to build a valid route from your assigned Start station to your Destination using only your memory of the map.
+            The metro lines will disappear! You have <strong>90 seconds</strong> to build a valid route from your assigned starting station to your destination using only your memory of the map.
           </p>
         </div>
 
@@ -46,12 +46,12 @@ function Home({ user }) {
           <div>
             <p className="cta-text">Ready for your mission, <strong>{user.username}</strong>?</p>
             <Link to="/game" className="btn-play-huge">
-              🎮 Play Now
+              Play now
             </Link>
           </div>
         ) : (
           <div className="login-prompt">
-            <p><strong>Want to play?</strong> Please log in or register to start your journey.</p>
+            <p><strong>Want to play?</strong> Please log in to start your journey.</p>
           </div>
         )}
       </div>

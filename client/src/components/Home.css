@@ -65,20 +65,23 @@
 
 .btn-play-huge {
   display: inline-block;
-  padding: 15px 40px;
-  font-size: 1.5em;
+  padding: 16px 40px;
+  font-size: 1.3em;
   background-color: var(--primary-color);
   color: white;
   text-decoration: none;
   border-radius: 8px;
   font-weight: bold;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  transition: background-color 0.2s, transform 0.1s;
 }
 
 .btn-play-huge:hover {
-  transform: scale(1.05);
   background-color: var(--primary-hover);
+}
+
+.btn-play-huge:active {
+  transform: scale(0.98);
 }
 
 .login-prompt {

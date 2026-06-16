@@ -15,7 +15,7 @@
 }
 .phase-title {
   margin: 0 0 15px 0;
-  font-size: 1.5em;
+  font-size: 2em;
   color: #333;
 }
 
@@ -56,7 +56,7 @@ button:active:not(:disabled) {
 .btn-primary:hover { background-color: #45a049; }
 
 .btn-success {
-  background-color: #28a745;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 6px;
@@ -65,7 +65,7 @@ button:active:not(:disabled) {
   padding: 12px;
   font-size: 1.1em;
 }
-.btn-success:hover { background-color: #218838; }
+.btn-success:hover { background-color: var(--primary-hover); }
 
 .btn-danger {
   background-color: #f44336;
@@ -184,7 +184,7 @@ button:active:not(:disabled) {
 
 /* --- Phase 3: Execution --- */
 .execution-container { max-width: 800px; gap: 20px; }
-.execution-title { margin: 0; font-size: 1.8em; color: #333; }
+.execution-title { margin: 0; font-size: 2em; color: #333; }
 .execution-subtitle { color: #666; font-size: 1.1em; margin-top: 0; }
 .execution-panel {
   width: 100%;
@@ -255,7 +255,7 @@ button:active:not(:disabled) {
 
 /* --- Phase 4: Result --- */
 .result-container { max-width: 600px; margin: 40px auto 0 auto; gap: 25px; }
-.result-title { margin: 0; font-size: 2.2em; color: #333; }
+.result-title { margin: 0; font-size: 2em; color: #333; }
 .result-box {
   width: 100%;
   border-radius: 12px;
@@ -313,7 +313,7 @@ button:active:not(:disabled) {
 .btn-play-again {
   width: 100%;
   padding: 16px;
-  background-color: #4CAF50;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   font-weight: bold;
@@ -322,4 +322,4 @@ button:active:not(:disabled) {
   font-size: 1.3em;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
-.btn-play-again:hover { background-color: #45a049; }
+.btn-play-again:hover { background-color: var(--primary-hover); }
