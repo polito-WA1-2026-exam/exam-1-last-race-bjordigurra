@@ -26,7 +26,7 @@ function Home({ user }) {
         <div className="phase-block">
           <h3 className="phase-2-title">Phase 2: Planning</h3>
           <p className="phase-desc">
-            The metro lines will disappear! You have <strong>90 seconds</strong> to build a valid route from your assigned starting station to your destination using only your memory of the map.
+            The metro lines will disappear! You have <strong>90 seconds</strong> to build a valid route from your assigned starting station to your destination using only your memory of the map. All the segments can be traveled in both directions.
           </p>
         </div>
 

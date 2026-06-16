@@ -238,6 +238,18 @@ function Game({ user }) {
       {phase === 'planning' && mission && (
         <div className="phase-container planning-container">
           <h3 className="phase-title">Planning</h3>
+
+          <div className="mission-highlight">
+            <div className="mission-details">
+              <span className="mission-label">Mission route</span>
+              <div className="mission-path">
+                {mission.start.name} <span className="arrow">➔</span> {mission.destination.name}
+              </div>
+            </div>
+            <h4 className={`mission-timer ${timeLeft <= 10 ? 'danger' : ''}`}>
+              ⏳ {timeLeft}s
+            </h4>
+          </div>
           
 
           <div className="map-box">
@@ -261,17 +273,6 @@ function Game({ user }) {
             </svg>
           </div>
 
-          <div className="mission-banner">
-            <div className="mission-text">
-              <strong>Mission:</strong>
-              <span style={{ marginLeft: '10px' }}>
-                From <u>{mission.start.name}</u> to <u>{mission.destination.name}</u>
-              </span>
-            </div>
-            <h4 className={`timer ${timeLeft <= 10 ? 'danger' : 'safe'}`}>
-              ⏳ {timeLeft}s
-            </h4>
-          </div>
 
           <div className="lists-container">
             <div className="flex-2">
