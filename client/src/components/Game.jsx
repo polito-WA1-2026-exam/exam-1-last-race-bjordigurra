@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { getStations, getSegments, getMission, getEvents, saveGameScore } from '../api';
 import './Game.css'; 
 
-function Game({ user }) {
+function Game() {
   // Map Data
   const [stations, setStations] = useState([]);
   const [segments, setSegments] = useState([]);
@@ -57,61 +57,8 @@ function Game({ user }) {
     loadData();
   }, []);
 
-  // Timer logic
-  useEffect(() => {
-    let timer;
-    if (phase === 'planning' && timeLeft > 0) {
-      timer = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
-      }, 1000);
-    } else if (phase === 'planning' && timeLeft === 0) {
-      submitRoute();
-    }
-    return () => clearInterval(timer);
-  }, [phase, timeLeft]);
 
-  const startGame = async () => {
-    try {
-      setLoading(true);
-      const m = await getMission();
-      setMission(m);
-      setPhase('planning');
-      setTimeLeft(90);
-      setRoute([]);
-    } catch (err) {
-      console.error("Error fetching mission:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addSegmentToRoute = (segment) => {
-    if (!route.some(r => r.id === segment.id)) {
-      setRoute([...route, segment]);
-    }
-  };
-
-  const removeSegmentFromRoute = (segmentId) => {
-    setRoute(route.filter(seg => seg.id !== segmentId));
-  };
-
-  const clearRoute = () => setRoute([]);
-
-  const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
-
-  // Helper for map colors
-  const getLineColor = (lineId) => {
-    switch (lineId) {
-      case 1: return '#4CAF50'; 
-      case 2: return '#F44336'; 
-      case 3: return '#FF9800'; 
-      case 4: return '#2196F3'; 
-      default: return '#999999';
-    }
-  };
-
-  // Validation Engine
-  const submitRoute = async () => {
+    const submitRoute = async () => {
     let currentStationId = mission.start.id;
     let isValid = true;
     let coins = 20; 
@@ -121,7 +68,7 @@ function Game({ user }) {
 
     for (let i = 0; i < route.length; i++) {
       const seg = route[i];
-      let nextStationId = null;
+      let nextStationId;
 
       if (seg.station_a === currentStationId) {
         nextStationId = seg.station_b;
@@ -166,6 +113,63 @@ function Game({ user }) {
       setPhase('result');
     }
   };
+
+  // Timer logic
+  useEffect(() => {
+    let timer;
+    if (phase === 'planning' && timeLeft > 0) {
+      timer = setInterval(() => {
+        setTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (phase === 'planning' && timeLeft === 0) {
+      setTimeout(() => {
+        submitRoute();
+      }, 0);
+    }
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, timeLeft]);
+
+  const startGame = async () => {
+    try {
+      setLoading(true);
+      const m = await getMission();
+      setMission(m);
+      setPhase('planning');
+      setTimeLeft(90);
+      setRoute([]);
+    } catch (err) {
+      console.error("Error fetching mission:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addSegmentToRoute = (segment) => {
+    if (!route.some(r => r.id === segment.id)) {
+      setRoute([...route, segment]);
+    }
+  };
+
+  const removeSegmentFromRoute = (segmentId) => {
+    setRoute(route.filter(seg => seg.id !== segmentId));
+  };
+
+  const clearRoute = () => setRoute([]);
+
+  const getStationName = (id) => stations.find(s => s.id === id)?.name || 'Unknown';
+
+  // Helper for map colors
+  const getLineColor = (lineId) => {
+    switch (lineId) {
+      case 1: return '#4CAF50'; 
+      case 2: return '#F44336'; 
+      case 3: return '#FF9800'; 
+      case 4: return '#2196F3'; 
+      default: return '#999999';
+    }
+  };
+
 
   // Step logic
   const handleNextStep = async () => {

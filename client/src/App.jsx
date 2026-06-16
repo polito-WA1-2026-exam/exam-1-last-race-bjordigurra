@@ -49,7 +49,7 @@ function App() {
         <Route path="/login" element={<Login setUser={setUser} />} />
         
         <Route path="/game" element={
-  user ? <Game user={user} /> : <div>You must be logged in to play!</div>
+  user ? <Game /> : <div>You must be logged in to play!</div>
 } />
         
         <Route path="/rankings" element={<Rankings />} />        
