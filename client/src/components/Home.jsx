@@ -33,7 +33,7 @@ function Home({ user }) {
         <div className="phase-block">
           <h3 className="phase-3-title">Phase 3: Execution</h3>
           <p className="phase-desc">
-            You start with <strong>20 coins</strong>. As you travel your planned route step-by-step, unexpected random events will occur at each stop, adding or subtracting coins. 
+            You start with <strong>20 coins</strong>. As you travel your planned route, unexpected random events will occur at each stop, gaining or losing coins. 
             <br/><br/>
             <em>Warning:</em> If your route is invalid or incomplete, you lose all your coins!
           </p>
