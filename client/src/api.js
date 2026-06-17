@@ -57,3 +57,21 @@ export async function getRankings() {
   if (!response.ok) throw new Error('Failed to fetch rankings');
   return await response.json();
 }
+
+// POST api/sessions for login
+export async function login(username, password) {
+  const response = await fetch(`${BASE_URL}/sessions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+    credentials: 'include',
+  });
+
+  if (response.ok) {
+    return await response.json();
+    } else {
+    throw new Error('Incorrect username or password.');
+  }
+}

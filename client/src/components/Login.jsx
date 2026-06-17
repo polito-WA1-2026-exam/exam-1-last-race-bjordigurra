@@ -1,6 +1,7 @@
 // client/src/components/Login.jsx
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../api';
 import './Login.css';
 
 function Login({ setUser }) {
@@ -15,22 +16,9 @@ function Login({ setUser }) {
     setErrorMessage('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const userData = await response.json();
-        setUser(userData);
-        navigate('/');
-      } else {
-        setErrorMessage('Incorrect username or password.');
-      }
+      const userData = await login(username, password);
+      setUser(userData);
+      navigate('/');
     } catch (err) {
       console.error('Login error:', err);
       setErrorMessage('Error connecting to the server.');

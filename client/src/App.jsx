@@ -1,5 +1,5 @@
 // client/src/App.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Login from './components/Login';
@@ -9,35 +9,6 @@ import Rankings from './components/Rankings';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Check if a session already exists on startup
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/sessions/current', {
-          credentials: 'include' 
-        });
-        
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-        } else {
-          setUser(null);
-        }
-      } catch (err) {
-        console.error("Error connecting to the server:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <BrowserRouter>
