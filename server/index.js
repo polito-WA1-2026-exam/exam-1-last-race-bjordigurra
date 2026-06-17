@@ -241,6 +241,11 @@ app.get('/api/rankings', (req, res) => {
 
 // POST /api/games - This saves the result of a game for the logged-in user
 app.post('/api/games', isLoggedIn, (req, res) => {
+    // Score validation
+    if (req.body.score === undefined || typeof req.body.score !== 'number') {
+        return res.status(400).json({ error: "Validation error: score must be a number" });
+    }
+
     let finalScore = req.body.score;
     
     // If the score is negative, it is set to 0
