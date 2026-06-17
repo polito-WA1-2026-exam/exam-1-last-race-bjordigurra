@@ -75,3 +75,15 @@ export async function login(username, password) {
     throw new Error('Incorrect username or password.');
   }
 }
+
+// DELETE api/sessions/current for logout
+export async function logout() {
+  const response = await fetch(`${BASE_URL}/sessions/current`, {
+    method: 'DELETE',
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Error during logout');
+  }
+}

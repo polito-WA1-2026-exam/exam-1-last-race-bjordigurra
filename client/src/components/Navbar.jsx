@@ -1,21 +1,17 @@
 // client/src/components/Navbar.jsx
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import './Navbar.css';
+import { logout } from '../api';
 
 function Navbar({ user, setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/sessions/current', {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-
-      if (response.ok) {
-        setUser(null);
-        navigate('/');
-      }
+      await logout(); // api route
+      setUser(null); 
+      navigate('/'); 
     } catch (err) {
       console.error("Error during logout", err);
     }
@@ -42,9 +38,10 @@ function Navbar({ user, setUser }) {
             </button>
           </>
         ) : (
+          location.pathname !== '/login' && ( // show login button only if not already on login page
           <Link to="/login" className="nav-login">
             Login
-          </Link>
+          </Link>)
         )}
       </div>
       
