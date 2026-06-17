@@ -1,5 +1,5 @@
 // server/setup_database.js
-import { randomBytes, pbkdf2Sync } from 'crypto';
+import { randomBytes, scryptSync } from 'crypto';
 import pkg from 'sqlite3';
 const { Database } = pkg;
 
@@ -13,8 +13,9 @@ const db = new Database('database.sqlite', (err) => {
 // Helper function to generate salted hashes for user passwords
 function hashPassword(password) {
     const salt = randomBytes(16).toString('hex');
-    // pbkdf2Sync is secure and suitable for standard user authentication
-    const hash = pbkdf2Sync(password, salt, 310000, 32, 'sha256').toString('hex');
+    // Using scrypt in its synchronous form only for database setup
+    const hash = scryptSync(password, salt, 32).toString('hex');    
+    
     return { salt, hash };
 }
 

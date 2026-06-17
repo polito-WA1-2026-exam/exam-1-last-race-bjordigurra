@@ -3,11 +3,6 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import crypto from 'crypto';
 
-// Helper function to verify if the password matches the stored hash
-function verifyPassword(password, hash, salt) {
-    const hashedPassword = crypto.pbkdf2Sync(password, salt, 310000, 32, 'sha256').toString('hex');
-    return crypto.timingSafeEqual(Buffer.from(hash, 'hex'), Buffer.from(hashedPassword, 'hex'));
-}
 
 export function initPassport(db) {
     // 1. Define the Local Strategy for login
@@ -20,15 +15,19 @@ export function initPassport(db) {
                 // User not found
                 return done(null, false, { message: 'Incorrect username or password.' });
             }
+
+            // Hash the provided password with the stored salt and compare to the stored hash
+            crypto.scrypt(password, row.salt, 32, (err, hashedPassword) => {
+                if (err) return done(err);
+
+                if (!crypto.timingSafeEqual(Buffer.from(row.hash, 'hex'), hashedPassword)) {
+                    // Password doesn't match
+                    return done(null, false, { message: 'Incorrect username or password.' });
+                }
             
-            // Verify password using our helper function
-            if (!verifyPassword(password, row.hash, row.salt)) {
-                // Password doesn't match
-                return done(null, false, { message: 'Incorrect username or password.' });
-            }
-            
-            // Authentication successful
-            return done(null, row);
+                // Authentication successful
+                return done(null, row);
+            });
         });
     }));
 
