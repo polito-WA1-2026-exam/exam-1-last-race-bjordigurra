@@ -21,7 +21,7 @@ function Login({ setUser }) {
       navigate('/');
     } catch (err) {
       console.error('Login error:', err);
-      setErrorMessage(err.message || 'Error connecting to the server.');
+      setErrorMessage(err.message || 'Error connecting to the server.' );
     }
   };
 
