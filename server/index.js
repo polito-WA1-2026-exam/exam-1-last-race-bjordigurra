@@ -205,19 +205,6 @@ app.delete('/api/sessions/current', (req, res) => {
     });
 });
 
-// GET /api/sessions/current - CHECK CURRENT SESSION
-// Used by React to check if the user is already logged in when reloading the page
-app.get('/api/sessions/current', (req, res) => {
-    if (req.isAuthenticated()) {
-        const safeUser = {
-            id: req.user.id,
-            username: req.user.username
-        };
-        res.json(safeUser);
-    } else {
-        res.status(401).json({ error: "Not authenticated" });
-    }
-});
 
 // GET /api/rankings - GET RANKING (BY BEST SCORE)
 app.get('/api/rankings', (req, res) => {
