@@ -60,7 +60,9 @@
 
 ## Screenshot
 
-![Screenshot](./img/screenshot.jpg)
+![Screenshot](./img/screenshots/rankings.png)
+![Screenshot](./img/screenshots/game.png)
+
 
 
 ## Users Credentials
