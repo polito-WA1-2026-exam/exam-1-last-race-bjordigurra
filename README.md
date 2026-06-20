@@ -30,7 +30,7 @@
 - DELETE `/api/sessions/current`
   - none
   - empty body with status "200 OK"
-- GET `/api/rankings`
+- GET `/api/rankings` (Protected)
   - none
   - JSON array representing registered users with their highest score in the game, in descending order
 - POST `/api/games` (Protected)
