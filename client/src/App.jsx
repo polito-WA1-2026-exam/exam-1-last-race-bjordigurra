@@ -23,7 +23,9 @@ function App() {
   user ? <Game /> : <div>You must be logged in to play!</div>
 } />
         
-        <Route path="/rankings" element={<Rankings />} />        
+        <Route path="/rankings" element={
+  user ? <Rankings /> : <div>You must be logged in to view rankings!</div>
+} />
         <Route path="*" element={<div>404 - Page not found</div>} />
       </Routes>
     </BrowserRouter>
