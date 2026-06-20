@@ -23,7 +23,9 @@ function Navbar({ user, setUser }) {
       {/* Homepage and rankings on the left */}
       <div className="nav-links">
         <Link to="/" className="nav-link">Home</Link>
-        <Link to="/rankings" className="nav-link">Rankings</Link>
+      {user && (
+          <Link to="/rankings" className="nav-link">Rankings</Link>
+        )}      
       </div>
 
       {/* User and login/logout on the right */}

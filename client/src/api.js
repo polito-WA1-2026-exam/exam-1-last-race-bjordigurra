@@ -4,35 +4,45 @@ const BASE_URL = 'http://localhost:3001/api';
 
 // Fetch all stations
 export async function getStations() {
-  const response = await fetch(`${BASE_URL}/stations`);
+  const response = await fetch(`${BASE_URL}/stations`, {
+    method: 'GET'
+  });
   if (!response.ok) throw new Error('Failed to fetch stations');
   return await response.json();
 }
 
 // Fetch all lines
 export async function getLines() {
-  const response = await fetch(`${BASE_URL}/lines`);
+  const response = await fetch(`${BASE_URL}/lines`, {
+    method: 'GET'
+  });
   if (!response.ok) throw new Error('Failed to fetch lines');
   return await response.json();
 }
 
 // Fetch all segments (connections between stations)
 export async function getSegments() {
-  const response = await fetch(`${BASE_URL}/segments`);
+  const response = await fetch(`${BASE_URL}/segments`, {
+    method: 'GET'
+  });
   if (!response.ok) throw new Error('Failed to fetch segments');
   return await response.json();
 }
 
 // Fetch all random events
 export async function getEvents() {
-  const response = await fetch(`${BASE_URL}/events`);
+  const response = await fetch(`${BASE_URL}/events`, {
+    method: 'GET'
+  });
   if (!response.ok) throw new Error('Failed to fetch events');
   return await response.json();
 }
 
 // Get mission for the planning phase (random start and destination)
 export async function getMission() {
-  const response = await fetch(`${BASE_URL}/mission`, { credentials: 'include' });
+  const response = await fetch(`${BASE_URL}/mission`, {
+    method: 'GET',
+    credentials: 'include' });
   if (!response.ok) throw new Error('Failed to fetch mission');
   return await response.json();
 }
@@ -53,7 +63,10 @@ export async function saveGameScore(score) {
 
 // Fetch global rankings
 export async function getRankings() {
-  const response = await fetch(`${BASE_URL}/rankings`);
+  const response = await fetch(`${BASE_URL}/rankings`, {
+    method: 'GET',
+    credentials: 'include'
+  });
   if (!response.ok) throw new Error('Failed to fetch rankings');
   return await response.json();
 }

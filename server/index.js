@@ -207,7 +207,7 @@ app.delete('/api/sessions/current', (req, res) => {
 
 
 // GET /api/rankings - GET RANKING (BY BEST SCORE)
-app.get('/api/rankings', (req, res) => {
+app.get('/api/rankings', isLoggedIn, (req, res) => {
     // SQL query to join users and games, taking the MAX score for each user
     const sql = `
         SELECT users.username, MAX(games.score) as best_score
