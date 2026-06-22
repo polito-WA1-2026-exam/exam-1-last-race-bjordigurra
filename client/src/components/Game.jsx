@@ -69,7 +69,7 @@ function Game() {
     for (let i = 0; i < route.length; i++) {
       const seg = route[i];
       let nextStationId;
-      
+
       // Check if the current segment connects to the current station (bidirectional)
       if (seg.station_a === currentStationId) {
         nextStationId = seg.station_b;
@@ -79,7 +79,7 @@ function Game() {
         isValid = false;
         break; 
       }
-
+      // Random event generation
       const randomEvent = events[Math.floor(Math.random() * events.length)];
       coins += randomEvent.effect;
 
@@ -93,9 +93,9 @@ function Game() {
 
       currentStationId = nextStationId;
     }
-
+    // Check if final station matches the mission destination
     if (isValid && currentStationId !== mission.destination.id) isValid = false;
-
+    // Check if score is negative
     const calculatedScore = isValid ? (coins < 0 ? 0 : coins) : 0;
     
     setIsValidRoute(isValid);
@@ -234,7 +234,7 @@ function Game() {
           </div>
 
           <button onClick={startGame} className="btn-primary">
-            Ready! Start Game
+            Ready! Start game
           </button>
         </div>
       )}
