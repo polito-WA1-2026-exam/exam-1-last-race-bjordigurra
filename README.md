@@ -18,6 +18,9 @@
 - GET `/api/lines`
   - none
   - JSON array of objects representing all metro lines
+- GET `/api/segments`
+  - none
+  - JSON array of objects representing all connections between stations
 - GET `/api/events`
   - none
   - JSON array of objects representing all unexpected events
