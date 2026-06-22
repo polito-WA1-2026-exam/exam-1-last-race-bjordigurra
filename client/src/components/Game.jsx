@@ -22,7 +22,7 @@ function Game() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0); 
   const [finalScore, setFinalScore] = useState(0);
 
-  // Ascolto reset dalla Navbar
+  // Global event listener for game resets
   useEffect(() => {
     const handleReset = () => {
       setPhase('setup');
@@ -69,7 +69,8 @@ function Game() {
     for (let i = 0; i < route.length; i++) {
       const seg = route[i];
       let nextStationId;
-
+      
+      // Check if the current segment connects to the current station (bidirectional)
       if (seg.station_a === currentStationId) {
         nextStationId = seg.station_b;
       } else if (seg.station_b === currentStationId) {
